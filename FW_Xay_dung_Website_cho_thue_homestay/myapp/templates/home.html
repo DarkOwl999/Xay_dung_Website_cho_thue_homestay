@@ -1,10 +1,74 @@
 {% extends "base.html" %}
-{% block title %}Khởi tạo dự án{% endblock %}
-{% block content %}
-<div class="jumbotron mt-5">
-  <h1 class="display-5 font-weight-bold">Giai đoạn 1 - Khởi tạo project Django</h1>
-  <p class="lead">Ở giai đoạn này project mới có khung chạy cơ bản: project <b>gis</b>, app <b>myapp</b>, route trang chủ và template tối thiểu.</p>
-  <hr>
-  <p>Mục tiêu của mốc này là chạy được server, tạo app, tổ chức thư mục và chuẩn bị nền để thêm dữ liệu căn hộ ở giai đoạn tiếp theo.</p>
+{% block title %}Trang chủ - MyHome GIS{% endblock %}
+
+{% block content_wrapper %}
+<div class="jumbotron jumbotron-fluid text-white text-center" style="background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1583417311718-f9811c0f23de?q=80&w=1920&auto=format&fit=crop') no-repeat center center; background-size: cover; padding: 100px 0;">
+    <div class="container">
+        <h1 class="display-4 font-weight-bold">Tìm Ngôi Nhà Mơ Ước Tại Sài Gòn</h1>
+        <p class="lead mb-5">Hệ thống Thông tin Địa lý (GIS) hỗ trợ tìm kiếm và chỉ đường thông minh.</p>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form action="{% url 'map_view' %}" method="GET" class="input-group input-group-lg shadow">
+                    <input type="text" name="q" class="form-control border-0" placeholder="Bạn muốn thuê nhà ở khu vực nào? (VD: Quận 1, Thủ Đức...)">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary px-4" type="submit"><i class="fas fa-search"></i> Tìm Kiếm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h3 class="text-center font-weight-bold mb-4">Căn Hộ Vừa Lên Sóng</h3>
+    <div class="row">
+        {% for apt in latest_apartments %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <img src="{% if apt.image %}{{ apt.image.url }}{% else %}https://images.unsplash.com/photo-1522708323590-d24dbb6b0267{% endif %}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ apt.name }}">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title font-weight-bold text-primary">{{ apt.name }}</h5>
+                    <p class="text-danger font-weight-bold mb-2">{{ apt.price }} VNĐ <small class="text-muted">/đêm</small></p>
+                    <p class="card-text text-muted small"><i class="fas fa-map-marker-alt"></i> {{ apt.address|truncatechars:40 }}</p>
+                    
+                    <div class="mt-auto pt-3 border-top d-flex justify-content-between">
+                        <a href="{% url 'apartment_detail' apt.id %}" class="btn btn-outline-primary btn-sm">Chi tiết</a>
+                        <a href="/map/?target_id={{ apt.id }}" class="btn btn-primary btn-sm"><i class="fas fa-map"></i> Xem Bản Đồ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted">
+            <p>Chưa có căn hộ nào trên hệ thống.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="text-center font-weight-bold mt-5 mb-4 border-top pt-5">Công Nghệ Tích Hợp</h3>
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="p-4 bg-light rounded shadow-sm h-100">
+                <i class="fas fa-draw-polygon fa-3x text-primary mb-3"></i>
+                <h5 class="font-weight-bold">Spatial Analysis</h5>
+                <p class="text-muted small">Sử dụng thuật toán GIS và Geocoding từ OpenStreetMap để phân tích không gian, lọc dữ liệu chính xác theo ranh giới khu vực (Bounding Box).</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="p-4 bg-light rounded shadow-sm h-100">
+                <i class="fas fa-route fa-3x text-success mb-3"></i>
+                <h5 class="font-weight-bold">Smart Routing</h5>
+                <p class="text-muted small">Tích hợp API OSRM tìm kiếm tuyến đường ngắn nhất theo thời gian thực (Ô tô, Xe máy, Đi bộ) với thuật toán Dijkstra/A*.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="p-4 bg-light rounded shadow-sm h-100">
+                <i class="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
+                <h5 class="font-weight-bold">Interactive WebMap</h5>
+                <p class="text-muted small">Quản lý và cập nhật tọa độ không gian trực quan thông qua thao tác Click-to-Map với thư viện LeafletJS.</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
