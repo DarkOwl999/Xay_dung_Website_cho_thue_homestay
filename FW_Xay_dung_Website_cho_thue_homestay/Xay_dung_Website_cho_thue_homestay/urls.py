@@ -1,5 +1,5 @@
 """
-URL configuration for Xay_dung_Website_cho_thue_homestay project.
+URL configuration for gis project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/6.0/topics/http/urls/
