@@ -1,30 +1,144 @@
 {% extends "base.html" %}
-{% block title %}{{ apartment.name }}{% endblock %}
-{% block content %}
-<a href="{% url 'map_view' %}" class="btn btn-outline-secondary mb-3">
-  <i class="fas fa-arrow-left"></i> Quay lại bản đồ
-</a>
-<div class="row">
-  <div class="col-md-7">
-    <div class="card shadow-sm">
-      {% if apartment.image %}
-      <img src="{{ apartment.image.url }}" class="card-img-top" alt="{{ apartment.name }}" style="height: 400px; object-fit: cover;">
-      {% else %}
-      <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267" class="card-img-top" alt="{{ apartment.name }}" style="height: 400px; object-fit: cover;">
-      {% endif %}
-    </div>
-  </div>
-  <div class="col-md-5">
-    <h2 class="text-primary font-weight-bold">{{ apartment.name }}</h2>
-    <p class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ apartment.address }}</p>
-    <h3 class="text-danger my-3">{{ apartment.price }} VNĐ <small class="text-muted">/ đêm</small></h3>
-    <div class="bg-light p-3 rounded mb-3">
-      <h6 class="font-weight-bold">Mô tả</h6>
-      <p class="mb-0">{{ apartment.desc }}</p>
-    </div>
-    <a href="{% url 'map_view' %}?target_id={{ apartment.id }}" class="btn btn-success btn-lg btn-block">
-      <i class="fas fa-directions"></i> Xem đường đi trên bản đồ
+{% block title %} {{ apartment.name }} {% endblock %}
+
+{% block content_wrapper %}
+<div class="container mt-4 mb-5">
+    <a href="{% url 'map_view' %}" class="btn btn-outline-secondary mb-3">
+        <i class="fas fa-arrow-left"></i> Quay lại Bản đồ
     </a>
-  </div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                {% if apartment.image %}
+                    <img src="{{ apartment.image.url }}" class="card-img-top" alt="{{ apartment.name }}" style="height: 400px; object-fit: cover;">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267" class="card-img-top" alt="Mẫu" style="height: 400px; object-fit: cover;">
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <h2 class="text-primary font-weight-bold">{{ apartment.name }}</h2>
+            <p class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ apartment.address }}</p>
+
+            <h3 class="text-danger my-3">{{ apartment.price }} VNĐ <small class="text-muted" style="font-size: 16px;">/ đêm</small></h3>
+
+            <div class="bg-light p-3 rounded mb-3">
+                <h6 class="font-weight-bold">Mô tả:</h6>
+                <p class="mb-0">{{ apartment.desc }}</p>
+            </div>
+
+            <div class="row text-center mb-4">
+                <div class="col-6 mb-2">
+                    <div class="border rounded p-3 h-100 bg-white shadow-sm">
+                        <div class="text-muted small">Tổng số phòng</div>
+                        <div class="h4 text-primary mb-0">{{ apartment.total_rooms }}</div>
+                    </div>
+                </div>
+                <div class="col-6 mb-2">
+                    <div class="border rounded p-3 h-100 bg-white shadow-sm">
+                        <div class="text-muted small">Phòng còn trống</div>
+                        <div class="h4 text-success mb-0">{{ apartment.available_rooms }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column gap-3">
+                <a href="{% url 'map_view' %}?target_id={{ apartment.id }}" class="btn btn-success btn-lg btn-block mb-2">
+                    <i class="fas fa-directions"></i> Xem đường đi trên Bản đồ
+                </a>
+
+                <button type="button" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#bookingModal">
+                    <i class="fas fa-calendar-check"></i> Đặt phòng ngay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Danh sách phòng của căn hộ</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Phòng</th>
+                        <th>Số người tối đa</th>
+                        <th>Trạng thái</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td class="font-weight-bold">{{ room.room_name }}</td>
+                        <td>{{ room.max_people }} người</td>
+                        <td>
+                            {% if room.is_available %}
+                                <span class="badge badge-success">Còn trống</span>
+                            {% else %}
+                                <span class="badge badge-secondary">Đã kín</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ room.note|default:'-' }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Căn hộ này chưa có dữ liệu phòng. Bạn vẫn có thể bổ sung trong khu quản trị.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Đặt phòng: {{ apartment.name }}</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        {% for field in booking_form %}
+                        <div class="col-md-{% if field.name == 'note' %}12{% else %}6{% endif %}">
+                            <div class="form-group">
+                                <label>{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <small class="text-danger d-block">{{ field.errors.0 }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Gửi đơn đặt phòng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if booking_form.errors %}
+<script>
+    $(document).ready(function () {
+        $('#bookingModal').modal('show');
+    });
+</script>
+{% endif %}
+
+<style>
+    .btn-block { width: 100%; display: block; }
+</style>
 {% endblock %}

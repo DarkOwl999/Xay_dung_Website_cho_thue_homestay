@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} phòng{% endblock %}
+{% block content %}
+{% include 'partials/admin_menu.html' %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow mt-2 mb-5">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{{ action }} phòng</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            {% if field.name == 'is_available' %}
+                                <div class="form-check">
+                                    {{ field }}
+                                    <label class="form-check-label font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                </div>
+                            {% else %}
+                                <label class="font-weight-bold">{{ field.label }}</label>
+                                {{ field }}
+                            {% endif %}
+                            {% if field.errors %}
+                                <small class="text-danger">{{ field.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-save"></i> Lưu dữ liệu</button>
+                    <a href="{% url 'room_admin' %}" class="btn btn-secondary btn-lg">Hủy bỏ</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
