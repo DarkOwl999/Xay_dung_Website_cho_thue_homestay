@@ -1,10 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}MyHome GIS{% endblock %}</title>
+    <title>{% block title %}Django App{% endblock %}</title>
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
@@ -14,8 +15,34 @@
       <a class="navbar-brand font-weight-bold" href="{% url 'home' %}">
         <i class="fas fa-building text-primary"></i> MyHome GIS
       </a>
-      <div class="ml-auto">
-        <a class="nav-link d-inline-block" href="{% url 'home' %}">Trang chủ</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'map_view' %}">Bản đồ</a></li>
+
+          {% if user.is_authenticated %}
+              <li class="nav-item">
+                  <span class="nav-link text-success font-weight-bold">Xin chào, {{ user.username }}!</span>
+              </li>
+              {% if user.is_staff %}
+                  <li class="nav-item">
+                      <a class="nav-link text-primary font-weight-bold" href="{% url 'custom_admin' %}">Quản lý Dữ liệu</a>
+                  </li>
+              {% endif %}
+              <li class="nav-item">
+                  <form method="POST" action="{% url 'logout' %}" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-danger btn-sm mt-1 ml-2">Đăng xuất</button>
+                  </form>
+              </li>
+          {% else %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Đăng nhập</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Đăng ký</a></li>
+          {% endif %}
+        </ul>
       </div>
     </nav>
 
@@ -24,16 +51,18 @@
         {% for message in messages %}
           <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
         {% endfor %}
       {% endif %}
     </div>
 
     {% block content_wrapper %}
-      <div class="container mt-4">
-        {% block content %}{% endblock %}
-      </div>
+        <div class="container mt-4">
+            {% block content %}{% endblock %}
+        </div>
     {% endblock %}
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

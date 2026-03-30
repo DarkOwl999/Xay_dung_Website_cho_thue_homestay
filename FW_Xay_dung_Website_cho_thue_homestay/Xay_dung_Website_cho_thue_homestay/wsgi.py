@@ -1,5 +1,5 @@
 """
-WSGI config for Xay_dung_Website_cho_thue_homestay project.
+WSGI config for gis project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,8 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "Xay_dung_Website_cho_thue_homestay.settings"
-)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gis.settings")
 
 application = get_wsgi_application()

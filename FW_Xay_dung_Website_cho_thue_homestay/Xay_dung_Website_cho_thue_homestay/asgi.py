@@ -1,5 +1,5 @@
 """
-ASGI config for Xay_dung_Website_cho_thue_homestay project.
+ASGI config for gis project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,8 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "Xay_dung_Website_cho_thue_homestay.settings"
-)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gis.settings")
 
 application = get_asgi_application()
