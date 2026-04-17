@@ -84,4 +84,39 @@
         }, 500);
     });
 </script>
+
+ const map = L.map('picker-map').setView([startLat, startLng], 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+
+
+    function placeMarker(lat, lng, label) {
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
+        }
+
+        if (label) {
+            marker.bindPopup(label).openPopup();
+        }
+
+        map.setView([lat, lng], 16);
+        updateLatLngInputs(lat, lng);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 {% endblock %}
