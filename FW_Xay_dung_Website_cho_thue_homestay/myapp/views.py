@@ -291,3 +291,64 @@ def search_region_api(request):
         })
 
     return JsonResponse({'data': result})
+
+// --- KHOI DAU ---
+
+def _serialize_apartments_for_map(apartments, extra_by_id=None):
+    extra_by_id = extra_by_id or {}
+    data_list = []
+
+    for apt in apartments:
+        item = {
+            'id': apt.id,
+            'name': apt.name,
+            'price': apt.price,
+            'address': apt.address,
+            'desc': apt.desc,
+            'image': apt.cover_image_url,
+            'lat': apt.lat,
+            'lng': apt.lng,
+        }
+        item.update(extra_by_id.get(apt.id, {}))
+        data_list.append(item)
+
+    return data_list
+
+
+
+def _build_geojson_payload(data_list, as_dict=False):
+    empty_collection = {"type": "FeatureCollection", "features": []}
+    if not data_list:
+        return empty_collection if as_dict else json.dumps(empty_collection)
+
+    feature_collection = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    key: value
+                    for key, value in item.items()
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [item["lng"], item["lat"]],
+                },
+            }
+            for item in data_list
+        ],
+    }
+    return feature_collection if as_dict else json.dumps(feature_collection, ensure_ascii=False)
+
+
+
+def map_view(request):
+    apartments_db = Apartment.objects.prefetch_related('gallery_images').all()
+    data_list = _serialize_apartments_for_map(apartments_db)
+    geojson_data = _build_geojson_payload(data_list)
+
+    context = {
+        'apartments': json.dumps(data_list, ensure_ascii=False),
+        'geojson_data': geojson_data,
+    }
+    return render(request, 'map.html', context)
