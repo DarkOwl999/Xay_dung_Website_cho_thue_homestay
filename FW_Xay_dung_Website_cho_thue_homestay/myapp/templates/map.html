@@ -298,4 +298,137 @@ function checkUrlForAutoRoute() {
 
   function focusApartment(lat, lng, id) { map.flyTo([lat, lng], 15); }
 </script>
+
+//KHỞI ĐẦU
+
+const map = L.map("map").setView([DEFAULT_LAT, DEFAULT_LNG], 13);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+    subdomains: "abcd",
+    maxZoom: 20,
+  }).addTo(map);
+
+
+function toggleSidebar() {
+    document.getElementById("mapPageShell").classList.toggle("sidebar-collapsed");
+    updateSidebarToggleLabels();
+    window.setTimeout(() => map.invalidateSize(), 260);
+  }
+
+function renderApartments(dataList, geoData) {
+    const listContainer = document.getElementById("listing-panel");
+    listContainer.innerHTML = "";
+    listContainer.style.display = "grid";
+    apartmentMarkerMap.clear();
+    markerGroup.clearLayers();
+    updateResultState(dataList.length, currentResultContext);
+
+    if (!dataList.length) {
+      listContainer.innerHTML = `
+        <div class="map-empty-state">
+          <i class="fas fa-search-location"></i>
+          <div class="map-empty-state-title">Không tìm thấy căn hộ phù hợp</div>
+          <p>Hãy đổi khu vực tìm kiếm hoặc nới rộng bán kính để xem thêm căn hộ.</p>
+          <button type="button" class="map-chip-btn" onclick="showAllApartments()">Xem lại tất cả căn hộ</button>
+        </div>
+      `;
+      return;
+    }
+
+    dataList.forEach((apt) => {
+      const safeName = escapeJsString(apt.name);
+      const html = `
+        <article class="apt-card" id="card-${apt.id}" onclick="focusApartment(${apt.lat}, ${apt.lng}, ${apt.id})">
+          <div class="apt-img-wrap">
+            <img src="${apt.image}" class="apt-img" alt="${apt.name}" />
+          </div>
+          <div class="apt-details">
+            <div class="apt-card-top">
+              <div>
+                <span class="apt-type-pill">Nguyên căn</span>
+                <h5 class="apt-name">${apt.name}</h5>
+              </div>
+              <div class="apt-price-box">
+                <span class="apt-price">${apt.price}</span>
+                <small>/đêm</small>
+              </div>
+            </div>
+
+            <p class="apt-address"><i class="fas fa-map-marker-alt"></i> ${apt.address}</p>
+            ${buildResultMetaHtml(apt)}
+
+            <div class="apt-actions">
+              <button class="map-action-btn map-action-btn--ghost" onclick="event.stopPropagation(); prepareRoute(${apt.lat}, ${apt.lng}, '${safeName}')">
+                <i class="fas fa-route"></i> Chỉ đường
+              </button>
+              <a href="/apartment/${apt.id}/" class="map-action-btn map-action-btn--primary" onclick="event.stopPropagation();">
+                <i class="fas fa-info-circle"></i> Xem chi tiết
+              </a>
+            </div>
+          </div>
+        </article>
+      `;
+      listContainer.insertAdjacentHTML("beforeend", html);
+    });
+
+    L.geoJSON(geoData, {
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, { icon: hotelIcon });
+      },
+      onEachFeature: function (feature, layer) {
+        const apt = feature.properties;
+        apartmentMarkerMap.set(String(apt.id), layer);
+        const safeName = escapeJsString(apt.name);
+        const popupContent = `
+          <div class="map-popup-card">
+            <div class="map-popup-media">
+              <img src="${apt.image}" alt="${apt.name}">
+            </div>
+            <div class="map-popup-body">
+              <h6 title="${apt.name}">${apt.name}</h6>
+              <p class="map-popup-price">${apt.price} <small>/đêm</small></p>
+              ${buildResultMetaHtml(apt)}
+              <div class="map-popup-actions">
+                <button class="map-popup-btn map-popup-btn--ghost" onclick="prepareRoute(${apt.lat}, ${apt.lng}, '${safeName}')">
+                  <i class="fas fa-route"></i> Đi
+                </button>
+                <a href="/apartment/${apt.id}/" class="map-popup-btn map-popup-btn--primary">
+                  <i class="fas fa-info-circle"></i> Xem
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+        layer.bindPopup(popupContent, {
+          maxWidth: 232,
+          minWidth: 188,
+          closeButton: false,
+          className: "map-compact-popup",
+          offset: [0, -18],
+          autoPanPaddingTopLeft: [16, 90],
+          autoPanPaddingBottomRight: [16, 24],
+        });
+      },
+    }).addTo(markerGroup);
+  }
+
+
+function showAllApartments() {
+    nearbySearchActive = false;
+    currentDest = null;
+    clearNearbyRadius();
+    clearRouteOverlays();
+    document.getElementById("regionSearch").value = "";
+    setNearbySummary();
+    document.getElementById("direction-panel").style.display = "none";
+    renderApartments(allApartments, geojsonData);
+    currentResultContext = DEFAULT_RESULT_CONTEXT;
+    updateResultState(allApartments.length, DEFAULT_RESULT_CONTEXT);
+    fitMapToMarkers();
+  }
+
+
+  <div id="listing-panel" class="map-results-grid"></div>
+
+
 {% endblock %}
