@@ -769,3 +769,57 @@ body.admin-page .floating-contact {
         min-width: 680px;
     }
 }
+
+@media (max-width: 575.98px) {
+    .admin-app {
+        margin-top: 88px;
+    }
+
+    .admin-sidebar {
+        padding: 22px 18px;
+        border-radius: 22px;
+    }
+
+    .admin-topbar-actions,
+    .admin-inline-actions,
+    .admin-form-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .admin-primary-btn,
+    .admin-secondary-btn,
+    .admin-ghost-btn,
+    .admin-danger-btn,
+    button.admin-primary-btn,
+    button.admin-secondary-btn,
+    button.admin-ghost-btn,
+    button.admin-danger-btn {
+        width: 100%;
+    }
+
+    .admin-panel-head {
+        flex-direction: column;
+    }
+
+    .admin-service-card {
+        flex-direction: column;
+    }
+
+    .admin-table-wrap {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-table {
+        min-width: 560px;
+    }
+
+    .admin-table-title,
+    .admin-table-subtext,
+    .admin-kpi-note,
+    .admin-quick-card span,
+    .admin-panel-head p {
+        overflow-wrap: anywhere;
+    }
+}

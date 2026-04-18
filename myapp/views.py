@@ -1,21 +1,20 @@
 import json
 import secrets
-import string
 from datetime import timedelta
 from functools import wraps
 
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import User
 from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
@@ -23,19 +22,19 @@ from .forms import (
     ACTIVE_BOOKING_STATUSES,
     ApartmentForm,
     ApartmentImageForm,
-    ApartmentReviewAdminForm,
     ApartmentReviewForm,
     BookingAdminForm,
     BookingPaymentMethodForm,
     CustomRegisterForm,
-    ForgotPasswordRequestForm,
-    ForgotPasswordResetForm,
     CustomerBookingForm,
+    EmailOTPConfirmForm,
     IntroductionPageForm,
+    OTPPasswordSetForm,
+    PasswordResetRequestForm,
     ServiceForm,
     UserAdminForm,
 )
-from .models import Apartment, ApartmentImage, ApartmentReview, Booking, IntroductionPage, PasswordResetCode, Service
+from .models import Apartment, ApartmentImage, ApartmentReview, Booking, IntroductionPage, PasswordOTP, Service
 from .rich_media import render_description_html
 from .tool import GISSearchTool, RoutingTool
 
@@ -48,44 +47,6 @@ def _booking_history_filter(user):
     return Q(user=user) | (Q(email__iexact=user.email) & ~Q(email=''))
 
 
-def _build_email_subject(subject):
-    return f"CanHo24h | {subject}"
-
-
-def _send_system_email(subject, template_name, context, recipient):
-    if (
-        settings.EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend"
-        and (not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD)
-    ):
-        raise RuntimeError(
-            "Mailtrap SMTP chưa được cấu hình. Nếu bạn đang dùng Transactional SMTP của Mailtrap, hãy tạo API token rồi điền MAILTRAP_SMTP_USER=api và MAILTRAP_SMTP_PASSWORD=<api_token> vào file .env hoặc mailtrap.env."
-        )
-
-    body = render_to_string(template_name, context)
-    send_mail(
-        _build_email_subject(subject),
-        body,
-        settings.DEFAULT_FROM_EMAIL,
-        [recipient],
-        fail_silently=False,
-    )
-
-
-def _generate_password_reset_code():
-    code_length = max(int(getattr(settings, "PASSWORD_RESET_CODE_LENGTH", 6)), 4)
-    return "".join(secrets.choice(string.digits) for _ in range(code_length))
-
-
-def _create_password_reset_code(user):
-    PasswordResetCode.objects.filter(user=user, used_at__isnull=True).update(used_at=timezone.now())
-    return PasswordResetCode.objects.create(
-        user=user,
-        email=user.email,
-        code=_generate_password_reset_code(),
-        expires_at=timezone.now() + timedelta(minutes=getattr(settings, "PASSWORD_RESET_CODE_TTL_MINUTES", 10)),
-    )
-
-
 def admin_required(view_func):
     @wraps(view_func)
     @login_required
@@ -95,6 +56,185 @@ def admin_required(view_func):
         return view_func(request, *args, **kwargs)
 
     return wrapped_view
+
+
+PASSWORD_RESET_OTP_SESSION_KEY = "password_reset_otp_id"
+PASSWORD_CHANGE_OTP_SESSION_KEY = "password_change_otp_id"
+REGISTER_EMAIL_OTP_SESSION_KEY = "register_email_otp_id"
+
+
+def _generate_otp_code():
+    return f"{secrets.randbelow(1000000):06d}"
+
+
+def _get_otp_expire_minutes():
+    try:
+        expire_minutes = int(getattr(settings, "PASSWORD_OTP_EXPIRE_MINUTES", 10))
+    except (TypeError, ValueError):
+        expire_minutes = 10
+    return max(expire_minutes, 1)
+
+
+def _create_password_otp(user, purpose):
+    now = timezone.now()
+    code = _generate_otp_code()
+
+    otp = PasswordOTP.objects.create(
+        user=user,
+        email=user.email,
+        purpose=purpose,
+        code_hash=make_password(code),
+        expires_at=now + timedelta(minutes=_get_otp_expire_minutes()),
+    )
+    return otp, code
+
+
+def _send_password_otp_email(user, code, purpose):
+    if not user.email:
+        raise ValueError("Tai khoan nay chua co email de nhan OTP.")
+
+    if str(getattr(settings, "EMAIL_BACKEND", "")).endswith("smtp.EmailBackend"):
+        missing_settings = []
+        if not getattr(settings, "EMAIL_HOST_USER", ""):
+            missing_settings.append("EMAIL_HOST_USER")
+        if not getattr(settings, "EMAIL_HOST_PASSWORD", ""):
+            missing_settings.append("EMAIL_HOST_PASSWORD")
+        if missing_settings:
+            missing_text = ", ".join(missing_settings)
+            raise ValueError(
+                f"Chua cau hinh {missing_text}. Hay dat bien moi truong hoac tao file .env trong thu muc project."
+            )
+
+    action_by_purpose = {
+        PasswordOTP.PURPOSE_FORGOT_PASSWORD: {
+            "subject": "Mã OTP đặt lại mật khẩu CanHo24h",
+            "title": "Đặt lại mật khẩu",
+            "description": "Bạn đang yêu cầu đặt lại mật khẩu cho tài khoản CanHo24h.",
+            "plain_action": "dat lai mat khau",
+        },
+        PasswordOTP.PURPOSE_CHANGE_PASSWORD: {
+            "subject": "Mã OTP đổi mật khẩu CanHo24h",
+            "title": "Đổi mật khẩu",
+            "description": "Bạn đang yêu cầu đổi mật khẩu cho tài khoản CanHo24h.",
+            "plain_action": "doi mat khau",
+        },
+        PasswordOTP.PURPOSE_REGISTER_EMAIL: {
+            "subject": "Mã OTP xác thực email đăng ký CanHo24h",
+            "title": "Xác thực email đăng ký",
+            "description": "Cảm ơn bạn đã đăng ký tài khoản. Nhập mã OTP bên dưới để kích hoạt tài khoản CanHo24h.",
+            "plain_action": "xac thuc email dang ky",
+        },
+    }
+    email_content = action_by_purpose.get(purpose, action_by_purpose[PasswordOTP.PURPOSE_FORGOT_PASSWORD])
+    expire_minutes = _get_otp_expire_minutes()
+    subject = email_content["subject"]
+    message = (
+        f"Xin chao {user.username},\n\n"
+        f"Ma OTP de {email_content['plain_action']} tai khoan CanHo24h cua ban la: {code}\n"
+        f"Ma co hieu luc trong {expire_minutes} phut va chi duoc su dung mot lan.\n\n"
+        "Neu ban khong thuc hien yeu cau nay, vui long bo qua email."
+    )
+    html_message = f"""
+    <div style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#17325c;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;">
+        <tr>
+          <td align="center">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:580px;background:#ffffff;border:1px solid #dde6f3;border-radius:8px;overflow:hidden;box-shadow:0 16px 36px rgba(23,50,92,0.12);">
+              <tr>
+                <td style="padding:24px 28px;background:#17325c;color:#ffffff;">
+                  <div style="font-size:13px;letter-spacing:1.8px;text-transform:uppercase;font-weight:700;color:#d4af37;">CanHo24h</div>
+                  <h1 style="margin:8px 0 0;font-size:24px;line-height:1.3;font-weight:800;">{email_content["title"]}</h1>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:28px;">
+                  <p style="margin:0 0 12px;font-size:16px;line-height:1.6;">Xin chào <strong>{user.username}</strong>,</p>
+                  <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#45617f;">{email_content["description"]}</p>
+                  <div style="margin:24px 0;padding:22px;border:1px dashed #d4af37;border-radius:8px;background:#fffaf0;text-align:center;">
+                    <div style="font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:#8a6d18;font-weight:700;">Mã xác thực của bạn</div>
+                    <div style="margin-top:10px;font-size:36px;line-height:1;font-weight:800;letter-spacing:10px;color:#17325c;">{code}</div>
+                  </div>
+                  <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#45617f;">Mã có hiệu lực trong <strong>{expire_minutes} phút</strong> và chỉ được sử dụng một lần.</p>
+                  <p style="margin:0;font-size:14px;line-height:1.7;color:#6c7f96;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:16px 28px;background:#f8fafc;border-top:1px solid #edf2f7;color:#6c7f96;font-size:12px;line-height:1.6;">
+                  Email được gửi tự động từ hệ thống CanHo24h. Vui lòng không trả lời email này.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+    """
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
+    )
+    email.attach_alternative(html_message, "text/html")
+    email.send(fail_silently=False)
+
+
+def _issue_password_otp(request, user, purpose, session_key):
+    otp, code = _create_password_otp(user, purpose)
+    try:
+        _send_password_otp_email(user, code, purpose)
+    except Exception:
+        otp.delete()
+        raise
+
+    PasswordOTP.objects.filter(
+        user=user,
+        purpose=purpose,
+        used_at__isnull=True,
+    ).exclude(pk=otp.pk).update(used_at=timezone.now())
+    request.session[session_key] = otp.id
+    return otp
+
+
+def _get_session_otp(request, session_key, purpose, user=None):
+    otp_id = request.session.get(session_key)
+    if not otp_id:
+        return None
+
+    otp_query = PasswordOTP.objects.select_related("user").filter(
+        pk=otp_id,
+        purpose=purpose,
+    )
+    if user is not None:
+        otp_query = otp_query.filter(user=user)
+
+    return otp_query.first()
+
+
+def _verify_password_otp(otp, code):
+    if otp is None:
+        return False, "Phiên xác thực OTP không còn hợp lệ. Vui lòng gửi lại mã mới."
+
+    if otp.used_at is not None:
+        return False, "Mã OTP này đã được sử dụng. Vui lòng gửi lại mã mới."
+
+    if otp.is_expired:
+        return False, "Mã OTP đã hết hạn. Vui lòng gửi lại mã mới."
+
+    if otp.attempts >= PasswordOTP.MAX_ATTEMPTS:
+        return False, "Bạn đã nhập sai OTP quá số lần cho phép. Vui lòng gửi lại mã mới."
+
+    otp.attempts += 1
+    if check_password(code, otp.code_hash):
+        otp.used_at = timezone.now()
+        otp.save(update_fields=["attempts", "used_at"])
+        return True, ""
+
+    otp.save(update_fields=["attempts"])
+    if otp.attempts >= PasswordOTP.MAX_ATTEMPTS:
+        return False, "Bạn đã nhập sai OTP quá số lần cho phép. Vui lòng gửi lại mã mới."
+
+    return False, "Mã OTP chưa đúng. Vui lòng kiểm tra email và nhập lại."
 
 
 def custom_403(request, exception=None):
@@ -128,6 +268,7 @@ def intro_page(request):
     intro_content = IntroductionPage.get_solo()
     return render(request, 'intro_page.html', {
         'intro_content': intro_content,
+        'featured_apartments': Apartment.objects.prefetch_related('gallery_images').order_by('-id')[:3],
         'intro_stats': {
             'apartment_count': Apartment.objects.count(),
             'booking_count': Booking.objects.count(),
@@ -491,97 +632,219 @@ def reverse_geocode_api(request):
 
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         form = CustomRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_active = False
+            user.email = form.cleaned_data["email"]
+            user.save()
             try:
-                _send_system_email(
-                    "Chào mừng bạn đến với CanHo24h",
-                    "emails/register_welcome.txt",
-                    {
-                        "user": user,
-                        "login_url": request.build_absolute_uri(reverse("login")),
-                        "home_url": request.build_absolute_uri(reverse("home")),
-                    },
-                    user.email,
-                )
-                messages.success(request, f"Đăng ký tài khoản thành công. Chúng tôi đã gửi email chào mừng tới {user.email}.")
-            except Exception as exc:
-                messages.info(
+                _issue_password_otp(
                     request,
-                    str(exc)
-                    if str(exc)
-                    else "Tài khoản đã được tạo thành công, nhưng email chào mừng chưa gửi được."
+                    user,
+                    PasswordOTP.PURPOSE_REGISTER_EMAIL,
+                    REGISTER_EMAIL_OTP_SESSION_KEY,
                 )
-            login(request, user)
-            return redirect('home')
+            except Exception as exc:
+                user.delete()
+                error_detail = f" Chi tiết: {exc}" if settings.DEBUG else ""
+                messages.error(
+                    request,
+                    f'Không thể gửi OTP xác thực email lúc này. Vui lòng kiểm tra cấu hình Mailtrap và thử lại.{error_detail}',
+                )
+            else:
+                messages.success(request, 'Đã gửi mã OTP xác thực đến email đăng ký. Vui lòng kiểm tra Mailtrap hoặc hộp thư nhận OTP.')
+                return redirect('register_confirm')
     else:
         form = CustomRegisterForm()
     return render(request, 'register.html', {'form': form})
 
 
-def forgot_password_request(request):
-    initial_email = request.session.get("password_reset_email", "")
-    if request.method == "POST":
-        form = ForgotPasswordRequestForm(request.POST)
+def register_confirm(request):
+    otp = _get_session_otp(
+        request,
+        REGISTER_EMAIL_OTP_SESSION_KEY,
+        PasswordOTP.PURPOSE_REGISTER_EMAIL,
+    )
+    if otp is None:
+        messages.error(request, 'Phiên xác thực đăng ký không còn hợp lệ. Vui lòng đăng ký lại để nhận mã OTP mới.')
+        return redirect('register')
+
+    user = otp.user
+    if user.is_active:
+        request.session.pop(REGISTER_EMAIL_OTP_SESSION_KEY, None)
+        messages.success(request, 'Tài khoản đã được kích hoạt. Bạn có thể đăng nhập ngay.')
+        return redirect('login')
+
+    if request.method == 'POST' and request.POST.get('action') == 'resend':
+        try:
+            _issue_password_otp(
+                request,
+                user,
+                PasswordOTP.PURPOSE_REGISTER_EMAIL,
+                REGISTER_EMAIL_OTP_SESSION_KEY,
+            )
+        except Exception as exc:
+            error_detail = f" Chi tiết: {exc}" if settings.DEBUG else ""
+            messages.error(
+                request,
+                f'Không thể gửi lại OTP lúc này. Vui lòng kiểm tra cấu hình Mailtrap và thử lại.{error_detail}',
+            )
+        else:
+            messages.success(request, 'Đã gửi lại mã OTP xác thực email. Vui lòng kiểm tra Mailtrap hoặc hộp thư.')
+        return redirect('register_confirm')
+
+    if request.method == 'POST':
+        form = EmailOTPConfirmForm(request.POST)
         if form.is_valid():
-            user = form.user
-            reset_code = _create_password_reset_code(user)
+            is_valid_otp, error_message = _verify_password_otp(otp, form.cleaned_data['otp_code'])
+            if is_valid_otp:
+                user.is_active = True
+                user.save(update_fields=['is_active'])
+                request.session.pop(REGISTER_EMAIL_OTP_SESSION_KEY, None)
+                login(request, user)
+                messages.success(request, 'Xác thực email thành công. Tài khoản của bạn đã được kích hoạt.')
+                return redirect('home')
+
+            form.add_error('otp_code', error_message)
+    else:
+        form = EmailOTPConfirmForm()
+
+    return render(request, 'register_confirm.html', {
+        'form': form,
+        'otp_email': otp.email,
+        'expire_minutes': _get_otp_expire_minutes(),
+        'username': user.username,
+    })
+
+
+def forgot_password_request(request):
+    if request.method == 'POST':
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            user = form.get_user()
             try:
-                _send_system_email(
-                    "Mã đặt lại mật khẩu",
-                    "emails/password_reset_code.txt",
-                    {
-                        "user": user,
-                        "reset_code": reset_code,
-                        "expire_minutes": getattr(settings, "PASSWORD_RESET_CODE_TTL_MINUTES", 10),
-                        "reset_url": request.build_absolute_uri(reverse("forgot_password_reset")),
-                    },
-                    user.email,
+                _issue_password_otp(
+                    request,
+                    user,
+                    PasswordOTP.PURPOSE_FORGOT_PASSWORD,
+                    PASSWORD_RESET_OTP_SESSION_KEY,
                 )
             except Exception as exc:
-                reset_code.delete()
+                error_detail = f" Chi tiết: {exc}" if settings.DEBUG else ""
                 messages.error(
                     request,
-                    str(exc)
-                    if str(exc)
-                    else "Hệ thống chưa gửi được email lúc này. Vui lòng kiểm tra cấu hình email rồi thử lại."
+                    f'Không thể gửi OTP lúc này. Vui lòng kiểm tra cấu hình Mailtrap và thử lại.{error_detail}',
                 )
             else:
-                request.session["password_reset_email"] = user.email
-                messages.success(request, f"Mã xác nhận đã được gửi tới {user.email}. Vui lòng kiểm tra hộp thư của bạn.")
-                return redirect("forgot_password_reset")
+                messages.success(request, 'Đã gửi mã OTP đến email của tài khoản. Vui lòng kiểm tra hộp thư.')
+                return redirect('forgot_password_confirm')
     else:
-        form = ForgotPasswordRequestForm(initial={"email": initial_email})
-    return render(request, "forgot_password_request.html", {"form": form})
+        form = PasswordResetRequestForm()
+
+    return render(request, 'forgot_password_request.html', {'form': form})
 
 
-def forgot_password_reset(request):
-    initial_email = request.session.get("password_reset_email", "")
-    if request.method == "POST":
-        form = ForgotPasswordResetForm(request.POST)
-        if form.is_valid():
-            user = form.user
-            reset_code = form.reset_code
-            user.set_password(form.cleaned_data["password1"])
-            user.save(update_fields=["password"])
-            if reset_code:
-                reset_code.mark_used()
-            request.session.pop("password_reset_email", None)
-            messages.success(request, "Mật khẩu đã được cập nhật thành công. Bạn có thể đăng nhập lại ngay bây giờ.")
-            return redirect("login")
-    else:
-        form = ForgotPasswordResetForm(initial={"email": initial_email})
-    return render(
+def forgot_password_confirm(request):
+    otp = _get_session_otp(
         request,
-        "forgot_password_reset.html",
-        {
-            "form": form,
-            "request_new_code_url": reverse("forgot_password_request"),
-            "expire_minutes": getattr(settings, "PASSWORD_RESET_CODE_TTL_MINUTES", 10),
-        },
+        PASSWORD_RESET_OTP_SESSION_KEY,
+        PasswordOTP.PURPOSE_FORGOT_PASSWORD,
     )
+    if otp is None:
+        messages.error(request, 'Phiên đặt lại mật khẩu chưa hợp lệ. Vui lòng gửi lại mã OTP.')
+        return redirect('forgot_password_request')
+
+    user = otp.user
+    if request.method == 'POST':
+        form = OTPPasswordSetForm(request.POST, user=user)
+        if form.is_valid():
+            is_valid_otp, error_message = _verify_password_otp(otp, form.cleaned_data['otp_code'])
+            if is_valid_otp:
+                user.set_password(form.cleaned_data['new_password1'])
+                user.save(update_fields=['password'])
+                request.session.pop(PASSWORD_RESET_OTP_SESSION_KEY, None)
+                messages.success(request, 'Đã đặt lại mật khẩu thành công. Vui lòng đăng nhập bằng mật khẩu mới.')
+                return redirect('login')
+
+            form.add_error('otp_code', error_message)
+    else:
+        form = OTPPasswordSetForm(user=user)
+
+    return render(request, 'forgot_password_confirm.html', {
+        'form': form,
+        'otp_email': otp.email,
+        'expire_minutes': _get_otp_expire_minutes(),
+    })
+
+
+@login_required
+def password_change_request(request):
+    if not request.user.email:
+        messages.error(request, 'Tài khoản của bạn chưa có email để nhận mã OTP.')
+        return redirect('home')
+
+    if request.method == 'POST':
+        try:
+            _issue_password_otp(
+                request,
+                request.user,
+                PasswordOTP.PURPOSE_CHANGE_PASSWORD,
+                PASSWORD_CHANGE_OTP_SESSION_KEY,
+            )
+        except Exception as exc:
+            error_detail = f" Chi tiết: {exc}" if settings.DEBUG else ""
+            messages.error(
+                request,
+                f'Không thể gửi OTP lúc này. Vui lòng kiểm tra cấu hình Mailtrap và thử lại.{error_detail}',
+            )
+        else:
+            messages.success(request, 'Đã gửi mã OTP đổi mật khẩu đến email của bạn.')
+            return redirect('password_change_confirm')
+
+    return render(request, 'password_change_request.html', {
+        'otp_email': request.user.email,
+        'expire_minutes': _get_otp_expire_minutes(),
+    })
+
+
+@login_required
+def password_change_confirm(request):
+    otp = _get_session_otp(
+        request,
+        PASSWORD_CHANGE_OTP_SESSION_KEY,
+        PasswordOTP.PURPOSE_CHANGE_PASSWORD,
+        user=request.user,
+    )
+    if otp is None:
+        messages.error(request, 'Phiên đổi mật khẩu chưa hợp lệ. Vui lòng gửi lại mã OTP.')
+        return redirect('password_change_request')
+
+    if request.method == 'POST':
+        form = OTPPasswordSetForm(request.POST, user=request.user)
+        if form.is_valid():
+            is_valid_otp, error_message = _verify_password_otp(otp, form.cleaned_data['otp_code'])
+            if is_valid_otp:
+                request.user.set_password(form.cleaned_data['new_password1'])
+                request.user.save(update_fields=['password'])
+                update_session_auth_hash(request, request.user)
+                request.session.pop(PASSWORD_CHANGE_OTP_SESSION_KEY, None)
+                messages.success(request, 'Đã đổi mật khẩu thành công.')
+                return redirect('home')
+
+            form.add_error('otp_code', error_message)
+    else:
+        form = OTPPasswordSetForm(user=request.user)
+
+    return render(request, 'password_change_confirm.html', {
+        'form': form,
+        'otp_email': otp.email,
+        'expire_minutes': _get_otp_expire_minutes(),
+    })
 
 
 @admin_required
@@ -761,20 +1024,6 @@ def booking_delete(request, id):
 def review_admin(request):
     reviews = ApartmentReview.objects.select_related('apartment', 'user').order_by('-updated_at', '-created_at')
     return render(request, 'review_admin.html', {'reviews': reviews})
-
-
-@admin_required
-def review_update(request, id):
-    review = get_object_or_404(ApartmentReview.objects.select_related('apartment', 'user'), id=id)
-    if request.method == 'POST':
-        form = ApartmentReviewAdminForm(request.POST, instance=review)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Đã cập nhật bình luận đánh giá.')
-            return redirect('review_admin')
-    else:
-        form = ApartmentReviewAdminForm(instance=review)
-    return render(request, 'review_form.html', {'form': form, 'action': 'Cập nhật', 'review': review})
 
 
 @admin_required

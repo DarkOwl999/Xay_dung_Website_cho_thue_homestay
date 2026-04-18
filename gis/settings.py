@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+
 import os
 from pathlib import Path
 
@@ -16,22 +17,23 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-def _load_local_env_files():
-    for env_name in (".env", "mailtrap.env"):
-        env_path = BASE_DIR / env_name
-        if not env_path.exists():
+def _load_local_env_file():
+    env_path = BASE_DIR / ".env"
+    if not env_path.exists():
+        return
+
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
             continue
-
-        for raw_line in env_path.read_text(encoding="utf-8").splitlines():
-            line = raw_line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-
-            key, value = line.split("=", 1)
-            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key:
+            os.environ.setdefault(key, value)
 
 
-_load_local_env_files()
+_load_local_env_file()
 
 
 # Quick-start development settings - unsuitable for production
@@ -174,16 +176,23 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = os.getenv("MAILTRAP_HOST", "live.smtp.mailtrap.io")
-EMAIL_PORT = int(os.getenv("MAILTRAP_PORT", "587"))
-EMAIL_HOST_USER = os.getenv("MAILTRAP_SMTP_USER", os.getenv("EMAIL_HOST_USER", ""))
-EMAIL_HOST_PASSWORD = os.getenv("MAILTRAP_SMTP_PASSWORD", os.getenv("EMAIL_HOST_PASSWORD", ""))
-EMAIL_USE_TLS = os.getenv("MAILTRAP_USE_TLS", os.getenv("EMAIL_USE_TLS", "true")).lower() in {"1", "true", "yes", "on"}
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() in {"1", "true", "yes", "on"}
-EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "30"))
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "hello@demomailtrap.co")
-SERVER_EMAIL = DEFAULT_FROM_EMAIL
+def _env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
-PASSWORD_RESET_CODE_LENGTH = int(os.getenv("PASSWORD_RESET_CODE_LENGTH", "6"))
-PASSWORD_RESET_CODE_TTL_MINUTES = int(os.getenv("PASSWORD_RESET_CODE_TTL_MINUTES", "10"))
+
+# Cau hinh SMTP dung cho Mailtrap. Khong hardcode tai khoan vao source,
+# hay dat cac bien moi truong EMAIL_HOST_USER va EMAIL_HOST_PASSWORD.
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "sandbox.smtp.mailtrap.io")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "2525"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
+EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", not EMAIL_USE_SSL)
+EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "20"))
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "CanHo24h <no-reply@canho24h.local>")
+
+PASSWORD_OTP_EXPIRE_MINUTES = int(os.getenv("PASSWORD_OTP_EXPIRE_MINUTES", "10"))

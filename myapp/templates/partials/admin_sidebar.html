@@ -30,7 +30,7 @@
         <span><i class="fas fa-users-cog"></i> Tài khoản</span>
         <small>Phân quyền</small>
     </a>
-    <a href="{% url 'review_admin' %}" class="admin-nav-link {% if current == 'review_admin' or current == 'review_update' %}is-active{% endif %}">
+    <a href="{% url 'review_admin' %}" class="admin-nav-link {% if current == 'review_admin' %}is-active{% endif %}">
         <span><i class="fas fa-star"></i> Đánh giá</span>
         <small>Bình luận khách</small>
     </a>

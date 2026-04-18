@@ -183,6 +183,49 @@ class IntroductionPage(models.Model):
         verbose_name_plural = "Trang giới thiệu"
 
 
+class PasswordOTP(models.Model):
+    MAX_ATTEMPTS = 5
+
+    PURPOSE_FORGOT_PASSWORD = "forgot_password"
+    PURPOSE_CHANGE_PASSWORD = "change_password"
+    PURPOSE_REGISTER_EMAIL = "register_email"
+    PURPOSE_CHOICES = [
+        (PURPOSE_FORGOT_PASSWORD, "Quen mat khau"),
+        (PURPOSE_CHANGE_PASSWORD, "Doi mat khau"),
+        (PURPOSE_REGISTER_EMAIL, "Xac thuc email dang ky"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="password_otps",
+        verbose_name="Tai khoan",
+    )
+    email = models.EmailField(verbose_name="Email nhan OTP")
+    purpose = models.CharField(max_length=30, choices=PURPOSE_CHOICES, verbose_name="Muc dich")
+    code_hash = models.CharField(max_length=128, verbose_name="Ma OTP da bam")
+    attempts = models.PositiveSmallIntegerField(default=0, verbose_name="So lan thu")
+    expires_at = models.DateTimeField(verbose_name="Het han luc")
+    used_at = models.DateTimeField(null=True, blank=True, verbose_name="Da su dung luc")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngay tao")
+
+    def __str__(self):
+        return f"{self.email} - {self.purpose}"
+
+    @property
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    @property
+    def is_usable(self):
+        return self.used_at is None and not self.is_expired and self.attempts < self.MAX_ATTEMPTS
+
+    class Meta:
+        verbose_name = "Ma OTP mat khau"
+        verbose_name_plural = "Ma OTP mat khau"
+        ordering = ["-created_at"]
+
+
 class Booking(models.Model):
     CUSTOMER_CANCELABLE_STATUSES = {"pending", "confirmed"}
     EDITABLE_PAYMENT_STATUSES = {"pending", "failed"}
@@ -331,40 +374,4 @@ class Booking(models.Model):
     class Meta:
         verbose_name = "Đơn thuê căn hộ"
         verbose_name_plural = "Danh sách Đơn thuê căn hộ"
-        ordering = ["-created_at"]
-
-
-
-class PasswordResetCode(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="password_reset_codes",
-        verbose_name="T?i kho?n",
-    )
-    email = models.EmailField(verbose_name="Email")
-    code = models.CharField(max_length=6, verbose_name="M? x?c nh?n")
-    expires_at = models.DateTimeField(verbose_name="H?t h?n l?c")
-    used_at = models.DateTimeField(null=True, blank=True, verbose_name="?? d?ng l?c")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ng?y t?o")
-
-    def __str__(self):
-        return f"Reset password for {self.user.username} - {self.code}"
-
-    @property
-    def is_expired(self):
-        return timezone.now() >= self.expires_at
-
-    @property
-    def is_available(self):
-        return self.used_at is None and not self.is_expired
-
-    def mark_used(self):
-        if self.used_at is None:
-            self.used_at = timezone.now()
-            self.save(update_fields=["used_at"])
-
-    class Meta:
-        verbose_name = "M? qu?n m?t kh?u"
-        verbose_name_plural = "M? qu?n m?t kh?u"
         ordering = ["-created_at"]

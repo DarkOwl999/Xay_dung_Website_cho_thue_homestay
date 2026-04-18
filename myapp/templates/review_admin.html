@@ -3,7 +3,7 @@
 {% block title %}Quản lý đánh giá căn hộ{% endblock %}
 {% block admin_section %}Đánh giá{% endblock %}
 {% block admin_page_title %}Quản lý bình luận và đánh giá{% endblock %}
-{% block admin_page_description %}Theo dõi từng nhận xét khách hàng gửi cho căn hộ, chỉnh lại nội dung khi cần và xóa bình luận không còn phù hợp.{% endblock %}
+{% block admin_page_description %}Theo dõi từng nhận xét khách hàng gửi cho căn hộ. Quản trị viên chỉ được xóa bình luận không còn phù hợp, không chỉnh sửa nội dung đánh giá của người dùng.{% endblock %}
 
 {% block admin_body %}
 <section class="admin-panel mt-4">
@@ -51,9 +51,6 @@
                     </td>
                     <td>
                         <div class="admin-inline-actions">
-                            <a href="{% url 'review_update' review.id %}" class="admin-primary-btn admin-btn-sm">
-                                <i class="fas fa-pen"></i> Cập nhật
-                            </a>
                             <form action="{% url 'review_delete' review.id %}" method="POST" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="admin-danger-btn admin-btn-sm" onclick="return confirm('Bạn chắc chắn muốn xóa bình luận này?');">

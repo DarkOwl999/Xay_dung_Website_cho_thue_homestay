@@ -118,3 +118,24 @@
 @media (max-width:1199px){ .detail-hero,.detail-body{ grid-template-columns:1fr; } .detail-side-card{ position:static; } }
 @media (max-width:991px){ .detail-page{ padding:18px 14px 0; } .main-slider img{ height:380px; } .detail-stats,.detail-feature-grid,.detail-review-layout{ grid-template-columns:repeat(2,minmax(0,1fr)); } .detail-review-layout{ grid-template-columns:1fr; } }
 @media (max-width:767px){ .detail-title{ font-size:1.8rem; } .main-slider img{ height:300px; } .thumbnail-slider{ padding:0 14px; } .detail-stats,.detail-feature-grid,.detail-grid,.detail-review-layout{ grid-template-columns:1fr; } .detail-price{ flex-direction:column; align-items:flex-start; } .detail-price-note{ text-align:left; max-width:none; } .detail-section-head,.detail-review-card-head{ flex-direction:column; } .detail-rating-options{ justify-content:flex-start; gap:6px; } .detail-rating-star i{ font-size:1.75rem; } .detail-rating-current{ min-height:auto; font-size:.86rem; } }
+@media (max-width:575.98px){
+    .detail-page{ padding:16px 12px 0; }
+    .detail-back{ width:100%; justify-content:center; text-align:center; }
+    .detail-actions{ grid-template-columns:1fr; }
+    .detail-stats{ padding:14px; }
+    .detail-section{ padding:16px; }
+    .detail-stat strong,
+    .detail-grid-item strong,
+    .detail-list-item strong,
+    .detail-review-card p,
+    .detail-summary,
+    .detail-address{ overflow-wrap:anywhere; }
+    .apartment-description-content{ overflow-wrap:anywhere; }
+    .apartment-description-content table{ display:block; overflow-x:auto; white-space:nowrap; }
+    .booking-modal .modal-dialog{ max-width:calc(100vw - 16px); margin:.5rem auto; }
+    .booking-modal .modal-header,
+    .booking-modal .modal-body,
+    .booking-modal .modal-footer{ padding-left:16px; padding-right:16px; }
+    .booking-modal .modal-footer{ flex-direction:column; }
+    .booking-modal .modal-footer .btn{ width:100%; }
+}

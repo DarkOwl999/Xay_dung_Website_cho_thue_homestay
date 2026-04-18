@@ -15,13 +15,13 @@
     {% block extra_css %}{% endblock %}
   </head>
   <body class="{% block body_class %}{% endblock %}">
-    <nav class="navbar navbar-expand-lg custom-navbar fixed-top transition-all {% if request.resolver_match.url_name != 'home' %}scrolled{% endif %}" id="mainNav">
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar fixed-top transition-all {% if request.resolver_match.url_name != 'home' %}scrolled{% endif %}" id="mainNav">
       <div class="container-fluid px-4 px-lg-5">
           <a class="navbar-brand" href="{% url 'home' %}">
             <img src="/media/apartments/logoweb.png" alt="Căn Hộ 24h Logo" class="brand-logo">
           </a>
           
-          <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarNav">
+          <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Mo menu dieu huong">
             <span class="navbar-toggler-icon navbar-toggler-icon-light"></span>
           </button>
           
@@ -60,6 +60,7 @@
                       </a>
                       <div class="dropdown-menu dropdown-menu-right border-0 shadow-sm user-dropdown">
                           <a class="dropdown-item py-2" href="{% url 'booking_history' %}"><i class="fas fa-list-alt mr-2 text-muted"></i> Lịch sử mua/thuê</a>
+                          <a class="dropdown-item py-2" href="{% url 'password_change_request' %}"><i class="fas fa-key mr-2 text-muted"></i> Đổi mật khẩu</a>
                           {% if user.is_staff %}
                               <div class="dropdown-divider"></div>
                               <a class="dropdown-item py-2" href="{% url 'custom_admin' %}"><i class="fas fa-shield-alt mr-2 text-primary"></i> Quản trị viên</a>

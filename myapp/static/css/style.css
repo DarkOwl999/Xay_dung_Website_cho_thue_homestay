@@ -63,6 +63,8 @@ body {
     background-color: transparent;
     padding: 15px 0;
     transition: all 0.3s ease-in-out;
+    z-index: 1035;
+    min-height: 78px;
 }
 
 /* KHÚC QUAN TRỌNG: Nền xanh, Chữ trắng khi cuộn */
@@ -74,8 +76,41 @@ body {
 
 .brand-logo {
     height: 45px;
+    max-width: min(190px, 46vw);
     width: auto;
+    display: block;
     transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: calc(100% - 64px);
+    margin-right: 12px;
+}
+
+.navbar-toggler {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.custom-navbar.scrolled .navbar-toggler {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.navbar-toggler:focus,
+.navbar-toggler:hover {
+    outline: none;
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.14);
 }
 
 /* Mặc định chữ trắng */
@@ -1330,4 +1365,291 @@ body {
     border-radius: 20px;
     padding: 22px;
     background: linear-gradient(180deg, #fff, #f8fafc);
+}
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+video,
+iframe {
+    max-width: 100%;
+}
+
+@media (max-width: 991.98px) {
+    .custom-navbar {
+        padding: 10px 0;
+        background: rgba(23, 48, 85, 0.98) !important;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.2);
+        min-height: 74px;
+    }
+
+    .custom-navbar .container-fluid {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    .navbar-brand {
+        max-width: calc(100% - 58px);
+    }
+
+    .brand-logo {
+        height: 40px;
+        max-width: min(172px, 50vw);
+    }
+
+    .navbar-toggler {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    #navbarNav {
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: 20px;
+        background: rgba(23, 48, 85, 0.98);
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.24);
+    }
+
+    .main-menu,
+    .action-menu {
+        gap: 8px;
+    }
+
+    .main-menu .nav-item,
+    .action-menu .nav-item,
+    .action-menu .dropdown {
+        width: 100%;
+    }
+
+    .main-menu .nav-link,
+    .action-menu .nav-link,
+    .action-menu .btn-auth-text,
+    .user-profile-link,
+    .language-selector {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 46px;
+        padding: 12px 14px !important;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .custom-navbar .dropdown-menu,
+    .custom-navbar .dropdown-menu-right {
+        position: static !important;
+        float: none;
+        width: 100%;
+        margin-top: 8px;
+        border-radius: 14px;
+    }
+
+    .user-dropdown,
+    .language-dropdown {
+        min-width: 100%;
+    }
+
+    .action-menu {
+        align-items: stretch !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .custom-navbar {
+        min-height: 70px;
+    }
+
+    .brand-logo {
+        height: 36px;
+        max-width: min(156px, 52vw);
+    }
+
+    .navbar-brand {
+        max-width: calc(100% - 54px);
+        margin-right: 8px;
+    }
+
+    .navbar-toggler {
+        width: 40px;
+        height: 40px;
+    }
+
+    .content-shell {
+        margin-top: 88px;
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .hero-section {
+        height: auto;
+        min-height: 540px;
+        padding: 112px 0 40px;
+    }
+
+    .hero-content {
+        padding: 0 16px;
+    }
+
+    .hero-search-box {
+        display: block;
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .hero-search-box .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero-search-box .input-group-prepend,
+    .hero-search-box .input-group-append,
+    .hero-search-box input,
+    .hero-search-box .btn-search {
+        width: 100%;
+    }
+
+    .hero-search-box .input-group-text {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 12px !important;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background: #f8fafc;
+        justify-content: center;
+    }
+
+    .hero-search-box input {
+        min-height: 48px;
+        padding-left: 14px;
+        border-radius: 12px !important;
+        background: #fff !important;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .hero-search-box .btn-search {
+        min-height: 48px;
+        border-radius: 12px !important;
+    }
+
+    .modern-card img {
+        height: 210px;
+    }
+
+    .apartment-card-actions .btn {
+        white-space: normal;
+        text-align: center;
+    }
+
+    .map-page-shell {
+        margin-top: 82px;
+        padding: 12px;
+    }
+
+    .map-panel-card,
+    .map-results-head,
+    .map-route-panel,
+    .map-stage,
+    .map-hero-panel {
+        border-radius: 20px;
+    }
+
+    .map-stage,
+    #map {
+        border-radius: 20px;
+    }
+
+    .map-stage {
+        height: 52vh;
+        min-height: 420px;
+    }
+
+    .map-toolbar {
+        gap: 8px;
+    }
+
+    .map-hero-actions,
+    .map-toggle-group,
+    .nearby-mode-options,
+    .map-results-head-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .map-toolbar-btn,
+    .map-hero-btn,
+    .map-chip-btn,
+    .nearby-mode-btn {
+        width: 100%;
+    }
+
+    .payment-method-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-method-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .payment-method-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .payment-detail-card {
+        padding: 18px;
+    }
+
+    .payment-qr-image,
+    .booking-payment-qr,
+    .payment-qr-placeholder {
+        max-width: 220px;
+    }
+
+    .custom-footer {
+        padding-bottom: 110px;
+    }
+
+    .floating-contact-group {
+        right: 12px;
+        bottom: 14px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .custom-navbar .container-fluid {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .brand-logo {
+        height: 34px;
+        max-width: min(142px, 56vw);
+    }
+
+    .navbar-brand {
+        max-width: calc(100% - 50px);
+    }
+
+    .map-stage {
+        height: 48vh;
+        min-height: 360px;
+    }
+
+    .map-popup-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-summary-total {
+        padding: 16px;
+    }
 }

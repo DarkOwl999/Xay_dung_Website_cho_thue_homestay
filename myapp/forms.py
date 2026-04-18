@@ -2,14 +2,13 @@
 
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
-from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import Apartment, ApartmentReview, Booking, IntroductionPage, PasswordResetCode, Service
+from .models import Apartment, ApartmentReview, Booking, IntroductionPage, Service
 
 
 # Chỉ các đơn đã được quản trị viên xác nhận mới khóa lịch.
@@ -295,37 +294,6 @@ class ApartmentReviewForm(forms.ModelForm):
         return comment
 
 
-class ApartmentReviewAdminForm(forms.ModelForm):
-    class Meta:
-        model = ApartmentReview
-        fields = ["apartment", "user", "rating", "comment"]
-        labels = {
-            "apartment": "Căn hộ",
-            "user": "Tài khoản",
-            "rating": "Số sao",
-            "comment": "Bình luận",
-        }
-        widgets = {
-            "apartment": forms.Select(attrs={"class": "form-control"}),
-            "user": forms.Select(attrs={"class": "form-control"}),
-            "rating": forms.Select(attrs={"class": "form-control"}),
-            "comment": forms.Textarea(attrs={"class": "form-control", "rows": 6}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["apartment"].disabled = True
-        self.fields["user"].disabled = True
-        self.fields["apartment"].help_text = "Căn hộ gắn với bình luận này được giữ nguyên."
-        self.fields["user"].help_text = "Mỗi tài khoản chỉ có 1 đánh giá cho mỗi căn hộ."
-
-    def clean_comment(self):
-        comment = " ".join((self.cleaned_data.get("comment") or "").split())
-        if not comment:
-            raise ValidationError("Vui lòng nhập nội dung bình luận.")
-        return comment
-
-
 class CustomerBookingForm(forms.ModelForm):
     class Meta:
         model = Booking
@@ -570,21 +538,38 @@ class CustomLoginForm(AuthenticationForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs["class"] = "form-control"
-        self.fields["username"].widget.attrs.update(
-            {"placeholder": "Tên đăng nhập", "autocomplete": "username"}
-        )
-        self.fields["password"].widget.attrs.update(
-            {"placeholder": "Mật khẩu", "autocomplete": "current-password"}
-        )
 
 
-class ForgotPasswordRequestForm(forms.Form):
+class EmailOTPConfirmForm(forms.Form):
+    otp_code = forms.CharField(
+        label="Mã xác thực email",
+        min_length=6,
+        max_length=6,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control otp-code-input",
+                "placeholder": "Nhập 6 chữ số",
+                "inputmode": "numeric",
+                "autocomplete": "one-time-code",
+                "autofocus": "autofocus",
+            }
+        ),
+    )
+
+    def clean_otp_code(self):
+        otp_code = (self.cleaned_data.get("otp_code") or "").strip()
+        if not otp_code.isdigit():
+            raise ValidationError("Mã OTP chỉ gồm 6 chữ số.")
+        return otp_code
+
+
+class PasswordResetRequestForm(forms.Form):
     email = forms.EmailField(
-        label="Email đăng ký",
+        label="Email tài khoản",
         widget=forms.EmailInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Nhập email bạn đã dùng để đăng ký",
+                "placeholder": "Nhập email đã đăng ký tài khoản",
                 "autocomplete": "email",
             }
         ),
@@ -592,40 +577,31 @@ class ForgotPasswordRequestForm(forms.Form):
 
     def clean_email(self):
         email = (self.cleaned_data.get("email") or "").strip().lower()
-        user = User.objects.filter(email__iexact=email, is_active=True).first()
-        if not user:
-            raise ValidationError("Email này chưa được đăng ký trong hệ thống.")
-        self.user = user
+        if not User.objects.filter(email__iexact=email, is_active=True).exists():
+            raise ValidationError("Không tìm thấy tài khoản đang hoạt động với email này.")
         return email
 
+    def get_user(self):
+        email = self.cleaned_data.get("email")
+        return User.objects.filter(email__iexact=email, is_active=True).order_by("id").first()
 
-class ForgotPasswordResetForm(forms.Form):
-    email = forms.EmailField(
-        label="Email đăng ký",
-        widget=forms.EmailInput(
-            attrs={
-                "class": "form-control",
-                "placeholder": "Nhập lại email đã nhận mã",
-                "autocomplete": "email",
-            }
-        ),
-    )
-    code = forms.CharField(
-        label="Mã xác nhận",
+
+class OTPPasswordSetForm(forms.Form):
+    otp_code = forms.CharField(
+        label="Mã OTP",
+        min_length=6,
         max_length=6,
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Nhập mã 6 số đã gửi về email",
-                "autocomplete": "one-time-code",
+                "placeholder": "Nhập 6 chữ số OTP",
                 "inputmode": "numeric",
-                "maxlength": 6,
+                "autocomplete": "one-time-code",
             }
         ),
     )
-    password1 = forms.CharField(
+    new_password1 = forms.CharField(
         label="Mật khẩu mới",
-        strip=False,
         widget=forms.PasswordInput(
             attrs={
                 "class": "form-control",
@@ -633,11 +609,9 @@ class ForgotPasswordResetForm(forms.Form):
                 "autocomplete": "new-password",
             }
         ),
-        help_text="Mật khẩu cần đủ mạnh và không nên trùng với thông tin cá nhân.",
     )
-    password2 = forms.CharField(
-        label="Xác nhận mật khẩu mới",
-        strip=False,
+    new_password2 = forms.CharField(
+        label="Nhập lại mật khẩu mới",
         widget=forms.PasswordInput(
             attrs={
                 "class": "form-control",
@@ -647,59 +621,29 @@ class ForgotPasswordResetForm(forms.Form):
         ),
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = None
-        self.reset_code = None
-
-    def clean_email(self):
-        email = (self.cleaned_data.get("email") or "").strip().lower()
-        user = User.objects.filter(email__iexact=email, is_active=True).first()
-        if not user:
-            raise ValidationError("Email này chưa được đăng ký trong hệ thống.")
+    def __init__(self, *args, user=None, **kwargs):
         self.user = user
-        return email
+        super().__init__(*args, **kwargs)
 
-    def clean_code(self):
-        code = re.sub(r"\D", "", (self.cleaned_data.get("code") or "").strip())
-        expected_length = max(int(getattr(settings, "PASSWORD_RESET_CODE_LENGTH", 6)), 4)
-        if len(code) != expected_length:
-            raise ValidationError(f"Mã xác nhận phải gồm đúng {expected_length} chữ số.")
-        return code
+    def clean_otp_code(self):
+        otp_code = (self.cleaned_data.get("otp_code") or "").strip()
+        if not otp_code.isdigit():
+            raise ValidationError("Mã OTP chỉ gồm 6 chữ số.")
+        return otp_code
 
     def clean(self):
         cleaned_data = super().clean()
-        email = cleaned_data.get("email")
-        code = cleaned_data.get("code")
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
+        password1 = cleaned_data.get("new_password1")
+        password2 = cleaned_data.get("new_password2")
 
         if password1 and password2 and password1 != password2:
-            self.add_error("password2", "Mật khẩu xác nhận chưa khớp.")
+            self.add_error("new_password2", "Hai mật khẩu mới chưa trùng khớp.")
 
-        if self.user and code:
-            reset_code = (
-                PasswordResetCode.objects.filter(
-                    user=self.user,
-                    email__iexact=email,
-                    code=code,
-                    used_at__isnull=True,
-                )
-                .order_by("-created_at")
-                .first()
-            )
-            if not reset_code:
-                self.add_error("code", "Mã xác nhận không đúng hoặc đã được dùng.")
-            elif reset_code.is_expired:
-                self.add_error("code", "Mã xác nhận đã hết hạn. Vui lòng yêu cầu mã mới.")
-            else:
-                self.reset_code = reset_code
-
-        if self.user and password1 and not self.errors.get("password1") and not self.errors.get("password2"):
+        if password1:
             try:
-                validate_password(password1, user=self.user)
+                password_validation.validate_password(password1, self.user)
             except ValidationError as exc:
-                self.add_error("password1", exc)
+                self.add_error("new_password1", exc)
 
         return cleaned_data
 
