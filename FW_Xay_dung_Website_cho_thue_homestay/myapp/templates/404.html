@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}404 - Khong tim thay trang | CanHo24h{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/error-pages.css' %}?v=20260407-inline-css-split" />
+{% endblock %}
+
+{% block content_wrapper %}
+<section class="d-flex align-items-center error-page-section error-page-section--404">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-md-6 order-md-2 mb-5 mb-md-0">
+                <div class="lc-block text-center">
+                    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+                    <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_kcsr6fcp.json" background="transparent" speed="1" loop autoplay class="error-page-lottie"></lottie-player>
+                </div>
+            </div>
+
+            <div class="col-md-6 text-center text-md-left pl-md-5">
+                <div class="lc-block mb-2">
+                    <h1 class="display-1 font-weight-bold error-page-code">404</h1>
+                </div>
+
+                <div class="lc-block mb-4">
+                    <h2 class="h3 font-weight-bold text-dark mb-3">Rat tiec, trang nay khong ton tai!</h2>
+                    <p class="text-muted font-weight-light error-page-copy">
+                        Duong dan ban truy cap co the da bi thay doi, xoa bo hoac chua tung ton tai. Hay kiem tra lai
+                        hoac quay ve trang chu de tiep tuc kham pha cac can ho cua chung toi.
+                    </p>
+                </div>
+
+                <div class="lc-block">
+                    <a class="btn btn-primary btn-modern px-5 py-3 shadow error-page-home-btn" href="{% url 'home' %}">
+                        <i class="fas fa-home mr-2"></i> Quay lai Trang chu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
