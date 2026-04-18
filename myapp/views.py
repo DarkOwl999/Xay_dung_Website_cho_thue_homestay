@@ -581,7 +581,20 @@ def apartment_showcase(request, apartment_id):
     })
 
 
-
+def get_route_api(request):
+    start_lat = request.GET.get('start_lat')
+    start_lng = request.GET.get('start_lng')
+    end_lat = request.GET.get('end_lat')
+    end_lng = request.GET.get('end_lng')
+    mode = request.GET.get('mode', 'driving')
+    if not all([start_lat, start_lng, end_lat, end_lng]):
+        return JsonResponse({'error': 'Thiếu tọa độ đầu vào'}, status=400)
+    try:
+        tool = RoutingTool()
+        result = tool.get_route(start_lat, start_lng, end_lat, end_lng, mode=mode)
+        return JsonResponse(result)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def geocode_place_api(request):
