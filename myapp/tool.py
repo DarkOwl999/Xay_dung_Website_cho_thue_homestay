@@ -5,7 +5,20 @@ import unicodedata
 import polyline
 import requests
 
+def get_travel_speed_kmh(mode):
+    speeds = {
+        "walking": 5,
+        "cycling": 28,
+        "driving": 35,
+    }
+    return speeds.get(mode, 35)
+    
+def estimate_duration_minutes(distance_km, mode="driving"):
+    if distance_km <= 0:
+        return 0
 
+    duration_min = round((distance_km / get_travel_speed_kmh(mode)) * 60)
+    return max(duration_min, 1)
 
 
 def haversine_distance_km(start_lat, start_lng, end_lat, end_lng):
