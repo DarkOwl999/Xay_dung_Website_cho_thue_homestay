@@ -1,0 +1,198 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Giới thiệu CanHo24h{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/intro-page.css' %}?v=20260413-intro-visuals" />
+{% endblock %}
+
+{% block content_wrapper %}
+<div class="intro-page">
+    <section class="intro-hero">
+        <div class="intro-hero-copy">
+            <span class="intro-badge">{{ intro_content.hero_badge }}</span>
+            <h1>{{ intro_content.hero_title }}</h1>
+            <p>{{ intro_content.hero_description }}</p>
+            <div class="intro-hero-actions">
+                <a href="{{ intro_content.cta_button_link|default:'/map/' }}" class="intro-primary-btn">{{ intro_content.cta_button_text }}</a>
+                <a href="{% url 'map_view' %}" class="intro-secondary-btn">Khám phá trên bản đồ</a>
+            </div>
+        </div>
+
+        <div class="intro-hero-visual">
+            <div class="intro-hero-main-media">
+                {% if intro_content.hero_image %}
+                <img src="{{ intro_content.hero_image.url }}" alt="{{ intro_content.hero_title }}">
+                {% else %}
+                <img
+                    src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1400&q=80"
+                    alt="Không gian căn hộ nghỉ dưỡng hiện đại"
+                    loading="lazy"
+                >
+                {% endif %}
+            </div>
+
+            <div class="intro-hero-secondary-media">
+                {% if intro_content.hero_image_secondary or intro_content.hero_image %}
+                <img src="{% if intro_content.hero_image_secondary %}{{ intro_content.hero_image_secondary.url }}{% else %}{{ intro_content.hero_image.url }}{% endif %}" alt="{{ intro_content.hero_title }}">
+                {% else %}
+                <img
+                    src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80"
+                    alt="Phòng khách căn hộ nghỉ dưỡng"
+                    loading="lazy"
+                >
+                {% endif %}
+            </div>
+
+            <div class="intro-floating-card intro-floating-card--top">
+                <strong>Thuê nguyên căn</strong>
+                <span>Thông tin rõ ràng, hình ảnh trực quan và dễ so sánh.</span>
+            </div>
+            <div class="intro-floating-card intro-floating-card--bottom">
+                <strong>Đặt cọc minh bạch</strong>
+                <span>Khách chỉ trả phần cọc trước, phần còn lại xử lý khi nhận căn.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="intro-commitment">
+        <div class="intro-section-head intro-section-head--split">
+            <div>
+                <span class="intro-section-kicker">Cam kết của CanHo24h</span>
+                <h2>Một trang thuê căn hộ nghỉ dưỡng phải đủ rõ ràng để khách hàng quyết định nhanh hơn</h2>
+            </div>
+            <p>Trang giới thiệu được thiết kế lại theo hướng giống landing thương hiệu: gọn, có nhịp, có số liệu, có vấn đề và có lời giải rõ ràng để tăng niềm tin khi khách mới truy cập.</p>
+        </div>
+
+        <div class="intro-commitment-grid">
+            {% for item in intro_commitments %}
+            <article class="intro-commitment-card">
+                <i class="fas fa-check-circle"></i>
+                <p>{{ item }}</p>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="intro-story">
+        <div class="intro-section-head">
+            <span class="intro-section-kicker">Giải pháp hợp lý</span>
+            <h2>{{ intro_content.story_title }}</h2>
+        </div>
+
+        <div class="intro-story-layout">
+            <div class="intro-story-content">
+                {{ intro_content.story_content|safe }}
+            </div>
+            <aside class="intro-story-aside">
+                <div class="intro-story-photo-card">
+                    {% if intro_content.story_image or intro_content.hero_image %}
+                    <img src="{% if intro_content.story_image %}{{ intro_content.story_image.url }}{% else %}{{ intro_content.hero_image.url }}{% endif %}" alt="{{ intro_content.story_title }}">
+                    {% else %}
+                    <img
+                        src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1000&q=80"
+                        alt="Phòng ngủ căn hộ nghỉ dưỡng"
+                        loading="lazy"
+                    >
+                    {% endif %}
+                </div>
+                <div class="intro-aside-card">
+                    <span class="intro-aside-eyebrow">Khách hàng thường gặp</span>
+                    <ul class="intro-problem-list">
+                        {% for item in intro_problem_points %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="intro-solutions">
+        <div class="intro-section-head">
+            <span class="intro-section-kicker">Cách CanHo24h xử lý</span>
+            <h2>Biến trải nghiệm xem căn hộ thành hành trình dễ hiểu và đáng tin hơn</h2>
+        </div>
+
+        <div class="intro-solution-grid">
+            {% for item in intro_solution_points %}
+            <article class="intro-solution-card">
+                <div class="intro-solution-icon">
+                    <i class="{{ item.icon }}"></i>
+                </div>
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.description }}</p>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="intro-stats">
+        <div class="intro-section-head intro-section-head--center">
+            <span class="intro-section-kicker">Số liệu nổi bật</span>
+            <h2>Những con số giúp trang giới thiệu có cảm giác đáng tin hơn</h2>
+        </div>
+        <div class="intro-stat-grid">
+            <article class="intro-stat-card">
+                <strong>{{ intro_stats.apartment_count }}</strong>
+                <span>Căn hộ đang hiển thị</span>
+            </article>
+            <article class="intro-stat-card">
+                <strong>{{ intro_stats.booking_count }}</strong>
+                <span>Yêu cầu thuê đã tạo</span>
+            </article>
+            <article class="intro-stat-card">
+                <strong>{{ intro_stats.review_count }}</strong>
+                <span>Đánh giá từ khách hàng</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="intro-contact-band">
+        <div class="intro-contact-copy">
+            <span class="intro-section-kicker">Liên hệ nhanh</span>
+            <h2>Cần tư vấn chọn căn hộ phù hợp cho chuyến đi của bạn?</h2>
+            <p>Đội ngũ CanHo24h sẽ hỗ trợ bạn kiểm tra lịch trống, phương thức đặt cọc và gợi ý căn hộ phù hợp theo khu vực mong muốn.</p>
+        </div>
+        <div class="intro-contact-list">
+            <a href="tel:+84987654321" class="intro-contact-item">
+                <i class="fas fa-phone-alt"></i>
+                <span>+84 987 654 321</span>
+            </a>
+            <a href="mailto:contact@myhomegis.vn" class="intro-contact-item">
+                <i class="fas fa-envelope"></i>
+                <span>contact@myhomegis.vn</span>
+            </a>
+            <a href="{% url 'map_view' %}" class="intro-contact-item">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Xem bản đồ căn hộ</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="intro-cta">
+        <div class="intro-cta-copy">
+            <span class="intro-section-kicker">Sẵn sàng khám phá</span>
+            <h2>{{ intro_content.cta_title }}</h2>
+            <p>{{ intro_content.cta_description }}</p>
+        </div>
+        <div class="intro-cta-side">
+            <div class="intro-cta-actions">
+                <a href="{{ intro_content.cta_button_link|default:'/map/' }}" class="intro-primary-btn">{{ intro_content.cta_button_text }}</a>
+                <a href="{% url 'booking_history' %}" class="intro-secondary-btn">Xem lịch sử thuê</a>
+            </div>
+            <div class="intro-cta-media">
+                {% if intro_content.cta_image or intro_content.hero_image %}
+                <img src="{% if intro_content.cta_image %}{{ intro_content.cta_image.url }}{% else %}{{ intro_content.hero_image.url }}{% endif %}" alt="{{ intro_content.cta_title }}">
+                {% else %}
+                <img
+                    src="https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1000&q=80"
+                    alt="Không gian bếp căn hộ nghỉ dưỡng"
+                    loading="lazy"
+                >
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

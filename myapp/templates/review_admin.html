@@ -1,0 +1,75 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Quản lý đánh giá căn hộ{% endblock %}
+{% block admin_section %}Đánh giá{% endblock %}
+{% block admin_page_title %}Quản lý bình luận và đánh giá{% endblock %}
+{% block admin_page_description %}Theo dõi từng nhận xét khách hàng gửi cho căn hộ, chỉnh lại nội dung khi cần và xóa bình luận không còn phù hợp.{% endblock %}
+
+{% block admin_body %}
+<section class="admin-panel mt-4">
+    <div class="admin-panel-head">
+        <div>
+            <h3>Danh sách đánh giá</h3>
+            <p>Tổng số {{ reviews|length }} bình luận trong hệ thống.</p>
+        </div>
+    </div>
+
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tài khoản</th>
+                    <th>Căn hộ</th>
+                    <th>Số sao</th>
+                    <th>Bình luận</th>
+                    <th>Cập nhật</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    <td>#{{ review.id }}</td>
+                    <td>
+                        <div class="admin-table-title">{{ review.user.username }}</div>
+                        <div class="admin-table-subtext">{{ review.user.email|default:'Chưa có email' }}</div>
+                    </td>
+                    <td>
+                        <div class="admin-table-title">{{ review.apartment.name }}</div>
+                        <div class="admin-table-subtext">{{ review.apartment.address|truncatechars:70 }}</div>
+                    </td>
+                    <td>
+                        <span class="admin-status success">{{ review.rating }}/5 sao</span>
+                    </td>
+                    <td>
+                        <div class="admin-table-subtext">{{ review.comment|truncatechars:140 }}</div>
+                    </td>
+                    <td>
+                        <div>{{ review.updated_at|date:'d/m/Y H:i' }}</div>
+                        <div class="admin-table-subtext">Tạo: {{ review.created_at|date:'d/m/Y H:i' }}</div>
+                    </td>
+                    <td>
+                        <div class="admin-inline-actions">
+                            <a href="{% url 'review_update' review.id %}" class="admin-primary-btn admin-btn-sm">
+                                <i class="fas fa-pen"></i> Cập nhật
+                            </a>
+                            <form action="{% url 'review_delete' review.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="admin-danger-btn admin-btn-sm" onclick="return confirm('Bạn chắc chắn muốn xóa bình luận này?');">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="admin-empty">Chưa có bình luận nào cho các căn hộ.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

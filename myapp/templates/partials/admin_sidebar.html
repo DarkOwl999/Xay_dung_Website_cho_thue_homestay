@@ -1,0 +1,52 @@
+{% with current=request.resolver_match.url_name %}
+<div class="admin-brand">
+    <div class="admin-brand-icon">
+        <i class="fas fa-layer-group"></i>
+    </div>
+    <div>
+        <div class="admin-eyebrow">CanHo24h</div>
+        <h2 class="admin-brand-title">Khu quản trị</h2>
+    </div>
+</div>
+
+<p class="admin-sidebar-copy">
+    Menu được tối giản theo mô hình thuê nguyên căn để quản lý căn hộ, đơn thuê và tài khoản gọn gàng hơn.
+</p>
+
+<nav class="admin-nav">
+    <a href="{% url 'custom_admin' %}" class="admin-nav-link {% if current == 'custom_admin' %}is-active{% endif %}">
+        <span><i class="fas fa-chart-pie"></i> Dashboard</span>
+        <small>Tổng quan</small>
+    </a>
+    <a href="{% url 'apartment_admin' %}" class="admin-nav-link {% if current == 'apartment_admin' or current == 'apartment_create' or current == 'apartment_update' or current == 'apartment_content_admin' %}is-active{% endif %}">
+        <span><i class="fas fa-building"></i> Căn hộ</span>
+        <small>Danh sách</small>
+    </a>
+    <a href="{% url 'booking_admin' %}" class="admin-nav-link {% if current == 'booking_admin' or current == 'booking_update' %}is-active{% endif %}">
+        <span><i class="fas fa-calendar-check"></i> Đơn thuê</span>
+        <small>Xử lý yêu cầu</small>
+    </a>
+    <a href="{% url 'user_admin' %}" class="admin-nav-link {% if current == 'user_admin' or current == 'user_create' or current == 'user_update' %}is-active{% endif %}">
+        <span><i class="fas fa-users-cog"></i> Tài khoản</span>
+        <small>Phân quyền</small>
+    </a>
+    <a href="{% url 'review_admin' %}" class="admin-nav-link {% if current == 'review_admin' or current == 'review_update' %}is-active{% endif %}">
+        <span><i class="fas fa-star"></i> Đánh giá</span>
+        <small>Bình luận khách</small>
+    </a>
+    <a href="{% url 'intro_page_admin' %}" class="admin-nav-link {% if current == 'intro_page_admin' %}is-active{% endif %}">
+        <span><i class="fas fa-bullhorn"></i> Trang giới thiệu</span>
+        <small>Nội dung marketing</small>
+    </a>
+</nav>
+
+<div class="admin-sidebar-card">
+    <div class="admin-sidebar-card-title">Truy cập nhanh</div>
+    <a href="{% url 'home' %}" class="admin-sidebar-card-link">
+        <i class="fas fa-home"></i> Về trang chủ
+    </a>
+    <a href="{% url 'map_view' %}" class="admin-sidebar-card-link">
+        <i class="fas fa-map-marked-alt"></i> Mở bản đồ GIS
+    </a>
+</div>
+{% endwith %}

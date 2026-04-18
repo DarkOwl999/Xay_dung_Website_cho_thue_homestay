@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}?v=20260413-icon-picker-multi-upload">
+{% endblock %}
+
+{% block body_class %}admin-page{% endblock %}
+
+{% block content_wrapper %}
+<div class="admin-app">
+    <div class="container-fluid admin-app-container">
+        <div class="admin-shell">
+            <aside class="admin-sidebar">
+                {% include 'partials/admin_sidebar.html' %}
+            </aside>
+
+            <main class="admin-main">
+                <div class="admin-topbar">
+                    <div class="admin-topbar-copy">
+                        <div class="admin-topbar-label">{% block admin_section %}Quản trị{% endblock %}</div>
+                        <h1>{% block admin_page_title %}Bảng điều khiển{% endblock %}</h1>
+                        <p>{% block admin_page_description %}Quản lý từng nhóm dữ liệu trên các trang riêng, bố cục gọn gàng và dễ thao tác hơn.{% endblock %}</p>
+                    </div>
+
+                    <div class="admin-topbar-actions">
+                        {% block admin_page_actions %}{% endblock %}
+                    </div>
+                </div>
+
+                {% block admin_body %}{% endblock %}
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}{{ action }} đơn thuê căn hộ{% endblock %}
+{% block admin_section %}Đơn thuê{% endblock %}
+{% block admin_page_title %}{{ action }} đơn thuê #{{ booking.id }}{% endblock %}
+{% block admin_page_description %}Cập nhật một đơn thuê căn hộ trên trang riêng để kiểm soát lịch thuê, thanh toán và trạng thái lưu trú rõ ràng hơn.{% endblock %}
+
+{% block admin_page_actions %}
+<a href="{% url 'booking_admin' %}" class="admin-ghost-btn">
+    <i class="fas fa-arrow-left"></i> Về danh sách đơn
+</a>
+{% endblock %}
+
+{% block admin_body %}
+<section class="admin-panel admin-form-card mt-4">
+    {% if booking %}
+    <div class="alert alert-light border mb-4">
+        <strong>Tóm tắt thanh toán:</strong>
+        Tổng tiền thuê {{ booking.total_amount }} VNĐ. Thu cọc {{ booking.deposit_amount }} VNĐ trước, còn lại {{ booking.remaining_amount }} VNĐ thanh toán khi nhận căn.
+    </div>
+    <div class="alert alert-info border mb-4">
+        Lịch của căn hộ chỉ bị khóa với khách khác khi trạng thái đơn được chuyển sang <strong>Đã xác nhận</strong> hoặc <strong>Đang ở</strong>.
+    </div>
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="admin-form-grid">
+            {% for field in form %}
+                <div class="admin-form-field {% if field.name == 'note' or field.name == 'payment_note' %}admin-form-field--full{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <small class="form-error">{{ field.errors.0 }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="admin-form-actions">
+            <button type="submit" class="admin-primary-btn">
+                <i class="fas fa-save"></i> Lưu cập nhật
+            </button>
+            <a href="{% url 'booking_admin' %}" class="admin-secondary-btn">
+                <i class="fas fa-times"></i> Hủy
+            </a>
+        </div>
+    </form>
+</section>
+{% endblock %}
