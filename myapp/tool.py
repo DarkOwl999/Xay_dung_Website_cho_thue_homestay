@@ -6,21 +6,6 @@ import polyline
 import requests
 
 
-def get_travel_speed_kmh(mode):
-    speeds = {
-        "walking": 5,
-        "cycling": 28,
-        "driving": 35,
-    }
-    return speeds.get(mode, 35)
-
-
-def estimate_duration_minutes(distance_km, mode="driving"):
-    if distance_km <= 0:
-        return 0
-
-    duration_min = round((distance_km / get_travel_speed_kmh(mode)) * 60)
-    return max(duration_min, 1)
 
 
 def haversine_distance_km(start_lat, start_lng, end_lat, end_lng):
@@ -39,7 +24,6 @@ def haversine_distance_km(start_lat, start_lng, end_lat, end_lng):
     )
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return earth_radius_km * c
-
 
 class RoutingTool:
     OSRM_URL = "http://router.project-osrm.org/route/v1"
@@ -103,7 +87,6 @@ class RoutingTool:
             return {"error": "Khong tim thay duong di nao."}
         except Exception as exc:
             return {"error": f"Loi he thong: {str(exc)}"}
-
 
 class GISSearchTool:
     def __init__(self):
