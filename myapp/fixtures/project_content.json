@@ -1,0 +1,965 @@
+[
+{
+  "model": "myapp.apartment",
+  "pk": 1,
+  "fields": {
+    "name": "CHO THUÊ SKY VILLA LANDMARK 81, 170m2 185 triệu (bao VAT) 3PN, 3WC, HỒ BƠI SÂN VƯỜN RIÊNG",
+    "price": "184.999.999",
+    "address": "The Landmark 81 - Vinhomes Central Park, Đường Điện Biên Phủ, Phường 22, Quận Bình Thạnh, Hồ Chí Minh",
+    "desc": "CHO THUÊ SKY VILLA LANDMARK 81 - PENTHOUSE\r\n\r\nSở hữu không gian sống hiếm có với thiết kế Sky Villa sang trọng, tầm nhìn thoáng đãng và khu sân vườn riêng biệt chuẩn phong cách sống thượng lưu.\r\n\r\nDiện tích trong nhà: 170m\r\nSân vườn riêng: 60m - Pool\r\nLayout: 3 Phòng ngủ, 3WC\r\nKhông gian riêng tư, lý tưởng cho khách yêu thích đẳng cấp và sự khác biệt",
+    "image": "apartments/Landmark_81-Face.png",
+    "lat": 10.795,
+    "lng": 106.7218,
+    "bank_name": "",
+    "bank_account_name": "TRUONG GIA BAO",
+    "bank_account_number": "",
+    "momo_name": "",
+    "momo_phone": "",
+    "payment_note": "",
+    "payment_qr": "",
+    "momo_qr": ""
+  }
+},
+{
+  "model": "myapp.apartment",
+  "pk": 2,
+  "fields": {
+    "name": "Thuê Tresor 3PN 2WC 98m2 ban công full nội thất cao cấp view Bitexco Landmark 81 Bến Vân Đồn quận 4",
+    "price": "34.999.999",
+    "address": "The Tresor, Đường Bến Vân Đồn, Phường 12, Quận 4, Hồ Chí Minh",
+    "desc": "Cho thuê căn hộ 3PN cao cấp The Tresor, quận 4.\r\nVị trí đắc địa: 39 Bến Vân Đồn, Quận 4 chỉ 5 phút sang Quận 1, liền kề cầu Mống, Bitexco, phố đi bộ Nguyễn Huệ & chợ Bến Thành.\r\nKhu vực trung tâm, tiện ích đồng bộ, an ninh cao cấp.\r\n\r\nDiện tích: 98m².\r\nKết cấu: 3 phòng ngủ 2 phòng tắm ban công rộng.\r\nView: Sông Sài Gòn & Bitexco cực đẹp.\r\nNội thất: Full cao cấp sofa, giường, tủ, bếp, máy lạnh, máy giặt, tủ lạnh, TV, thiết bị vệ sinh & chiếu sáng hiện đại.\r\nGiá thuê: 35 triệu/tháng (full nội thất cao cấp).\r\n\r\nTiện ích The Tresor:\r\nHồ bơi tràn bờ & phòng gym view sông.\r\nKhu BBQ, khu vui chơi trẻ em.\r\nSiêu thị, cửa hàng tiện lợi, ngân hàng ngay sảnh.\r\nAn ninh 24/7, thẻ từ thang máy, hầm gửi xe riêng.",
+    "image": "apartments/the-tresor-q4-3.jpg",
+    "lat": 10.763,
+    "lng": 106.7,
+    "bank_name": "",
+    "bank_account_name": "TRUONG GIA BAO",
+    "bank_account_number": "",
+    "momo_name": "",
+    "momo_phone": "",
+    "payment_note": "",
+    "payment_qr": "",
+    "momo_qr": ""
+  }
+},
+{
+  "model": "myapp.apartment",
+  "pk": 3,
+  "fields": {
+    "name": "CHO THUÊ 2PN SARIMI VIEW CÔNG VIÊN - 30 TRIỆU",
+    "price": "29.999.999",
+    "address": "Sarimi Sala, Phường An Lợi Đông, Quận 2, Hồ Chí Minh",
+    "desc": "CHO THUÊ 2PN SARIMI VIEW CÔNG VIÊN XANH MÁT\r\nNhà trống vào ở ngay\r\nDiện tích: 88m² rộng rãi\r\n2 phòng ngủ nội thất đầy đủ\r\nBan công cây xanh hướng mát quanh năm\r\nView công viên yên tĩnh, thoáng đãng\r\nGiá thuê: 30 triệu/tháng\r\n====================\r\nFOR RENT 2BR SARIMI APARTMENT WITH PARK VIEW\r\nVacant move in immediately\r\nSize: 88 sqm spacious layout\r\n2 bedrooms fully furnished\r\nGreen balcony cool breeze all year\r\nPeaceful park view\r\nRent: 30,000,000 VND/month",
+    "image": "apartments/SarimiSala-Face.png",
+    "lat": 10.76943,
+    "lng": 106.7224,
+    "bank_name": "",
+    "bank_account_name": "TRUONG GIA BAO",
+    "bank_account_number": "",
+    "momo_name": "",
+    "momo_phone": "",
+    "payment_note": "",
+    "payment_qr": "",
+    "momo_qr": ""
+  }
+},
+{
+  "model": "myapp.apartment",
+  "pk": 4,
+  "fields": {
+    "name": "Căn hộ dịch vụ Hưng Gia đầy đủ nội thất diện tích 30m²",
+    "price": "8.999.999",
+    "address": "Nguyễn Văn Linh, Phường Tân Phong, Quận 7, TpHCM",
+    "desc": "CHO THUÊ CĂN HỘ DỊCH VỤ HƯNG GIA, QUẬN 7\r\nDiện tích: 30m²\r\nKết cấu: 1 phòng ngủ 1 phòng tắm\r\nTình trạng nội thất: Đầy đủ nội thất\r\nBuilding có thang máy, bãi xe máy. Đã bao gồm phí quản lý, giữ xe, Internet, điện, nước sinh hoạt và dọn phòng 1lần/tuần. \r\n\r\nCăn hộ dịch vụ có vị trí cách Trường Mầm non Úc Châu khoảng 8.6km, cách Trường Mầm non Sakura Montessori Quận 2 - TP HCM khoảng 7.8km. Di chuyển tới VShape Fitness & Yoga Center Quận 2 khoảng 8.8km, F5 Gym And Fitness Center khoảng 7.9km. Tọa lạc tại vị trí thuận tiện di chuyển với đầy đủ các tiện ích về y tế, giáo dục và giải trí.",
+    "image": "apartments/PhyMy-Face.png",
+    "lat": 10.722646,
+    "lng": 106.728025,
+    "bank_name": "",
+    "bank_account_name": "TRUONG GIA BAO",
+    "bank_account_number": "",
+    "momo_name": "",
+    "momo_phone": "",
+    "payment_note": "",
+    "payment_qr": "",
+    "momo_qr": ""
+  }
+},
+{
+  "model": "myapp.apartment",
+  "pk": 5,
+  "fields": {
+    "name": "Cho thuê 2.290 căn hộ Vin Q9, đầy đủ từ Stu,1-2-3PN, gần Vincom, gần Vinschool, có gym free, ở liền",
+    "price": "59.999.999",
+    "address": "Vinhomes Grand Park, Phường Long Thạnh Mỹ, Quận 9, Hồ Chí Minh",
+    "desc": "Lý do nên sống tại Vinhomes Grand Park:\r\nCông viên trung tâm 36ha, hồ bơi, gym, BBQ miễn phí.\r\nTrung tâm thương mại Vincom, Vinmec, trường quốc tế ngay trong khu.\r\nKhu compound an ninh 24/7 sảnh đón như khách sạn.\r\nCộng đồng cư dân văn minh, tiện ích tất cả trong một.",
+    "image": "apartments/VGP-Face.png",
+    "lat": 10.8428,
+    "lng": 106.8287,
+    "bank_name": "",
+    "bank_account_name": "TRUONG GIA BAO",
+    "bank_account_number": "",
+    "momo_name": "",
+    "momo_phone": "",
+    "payment_note": "",
+    "payment_qr": "",
+    "momo_qr": ""
+  }
+},
+{
+  "model": "myapp.apartment",
+  "pk": 6,
+  "fields": {
+    "name": "9Group - Đại lý chuyên cho thuê căn hộ tại Vinhomes Ocean Park. Uy tín - Tận tâm - Chính xác",
+    "price": "8.999.999",
+    "address": "Khu đô thị Vinhomes Ocean Park, Long Thạnh Mỹ, Thủ Đức, Thành phố Hồ Chí Minh, Việt Nam",
+    "desc": "Chuyên cho thuê căn hộ Vinhomes Ocean Park - Masteri Waterfront\r\n- Bao gồm: ngắn hạn, dài hạn\r\n- Căn hộ đa dạng: từ Studio, 1PN, 2PN, 2PN+1, 3PN, 3PN+1\r\n- Nội thất: Từ không đồ cho đến full đồ, đáp ứng mọi nhu cầu của khách hàng\r\n- Ký hợp đồng thuê trực tiếp với chủ nhà, đảm bảo đầy đủ pháp lý và yên tâm trong quá trình ở.\r\n- Hỗ trợ lắp đặt internet, TH Cáp\r\n- Hỗ trợ các thủ tục hợp đồng thuê và chăm sóc hậu mãi trong quá trình thuê nhà.\r\n- Nói không với căn hộ giá ảo, tư vấn tận tâm, không làm mất thời gian của khách hàng.",
+    "image": "apartments/VOP-Face.png",
+    "lat": 10.8455,
+    "lng": 106.8302,
+    "bank_name": "",
+    "bank_account_name": "TRUONG GIA BAO",
+    "bank_account_number": "",
+    "momo_name": "",
+    "momo_phone": "",
+    "payment_note": "",
+    "payment_qr": "",
+    "momo_qr": ""
+  }
+},
+{
+  "model": "myapp.apartment",
+  "pk": 7,
+  "fields": {
+    "name": "Cho thuê căn hộ 2n2vs Khu Vinhomes Smart City Tây Mỗ giá 10.5tr",
+    "price": "10.500.000",
+    "address": "Bình Thạnh, Thành phố Hồ Chí Minh, Việt Nam",
+    "desc": "<p>&lt;h2&gt;[T&ecirc;n căn hộ] - Kh&ocirc;ng gian nghỉ dưỡng hiện đại, đầy đủ tiện nghi&lt;/h2&gt;</p>\r\n\r\n<p>&lt;p&gt;<br />\r\nCăn hộ &lt;strong&gt;[T&ecirc;n căn hộ]&lt;/strong&gt; l&agrave; lựa chọn ph&ugrave; hợp cho kh&aacute;ch cần một kh&ocirc;ng gian lưu tr&uacute; ri&ecirc;ng tư,<br />\r\nsạch sẽ v&agrave; tiện nghi ngay tại &lt;strong&gt;[Địa chỉ]&lt;/strong&gt;. Với thiết kế hiện đại, bố cục tối ưu v&agrave; nội thất<br />\r\nđược trang bị đầy đủ, căn hộ mang lại cảm gi&aacute;c thoải m&aacute;i cho cả chuyến c&ocirc;ng t&aacute;c ngắn ng&agrave;y lẫn kỳ nghỉ d&agrave;i hơn.<br />\r\n&lt;/p&gt;</p>\r\n\r\n<p>&lt;p&gt;<br />\r\nCăn hộ c&oacute; diện t&iacute;ch khoảng &lt;strong&gt;[Diện t&iacute;ch]&lt;/strong&gt;, kh&ocirc;ng gian rộng r&atilde;i, tho&aacute;ng s&aacute;ng v&agrave; được bố tr&iacute; hợp l&yacute;<br />\r\nđể vừa đảm bảo t&iacute;nh thẩm mỹ, vừa mang lại sự tiện lợi trong sinh hoạt hằng ng&agrave;y. Ph&ograve;ng kh&aacute;ch được thiết kế mở,<br />\r\nkết nối liền mạch với khu bếp v&agrave; khu ăn uống, tạo cảm gi&aacute;c ấm c&uacute;ng v&agrave; hiện đại.<br />\r\n&lt;/p&gt;</p>\r\n\r\n<p>&lt;h3&gt;Điểm nổi bật của căn hộ&lt;/h3&gt;<br />\r\n&lt;ul&gt;<br />\r\n&nbsp; &lt;li&gt;Kh&ocirc;ng gian ri&ecirc;ng tư, ph&ugrave; hợp cho gia đ&igrave;nh, nh&oacute;m bạn hoặc kh&aacute;ch đi c&ocirc;ng t&aacute;c.&lt;/li&gt;<br />\r\n&nbsp; &lt;li&gt;Nội thất đầy đủ: giường, tủ quần &aacute;o, sofa, b&agrave;n ăn, m&aacute;y lạnh, tivi, m&aacute;y giặt, tủ lạnh.&lt;/li&gt;<br />\r\n&nbsp; &lt;li&gt;Khu bếp tiện nghi, c&oacute; thể tự nấu ăn v&agrave; sinh hoạt thoải m&aacute;i như ở nh&agrave;.&lt;/li&gt;<br />\r\n&nbsp; &lt;li&gt;Ban c&ocirc;ng hoặc cửa sổ lớn gi&uacute;p căn hộ lu&ocirc;n th&ocirc;ng tho&aacute;ng, đ&oacute;n &aacute;nh s&aacute;ng tự nhi&ecirc;n tốt.&lt;/li&gt;<br />\r\n&nbsp; &lt;li&gt;An ninh khu vực tốt, ra v&agrave;o thuận tiện, m&ocirc;i trường sống văn minh.&lt;/li&gt;<br />\r\n&lt;/ul&gt;</p>\r\n\r\n<p>&lt;h3&gt;Vị tr&iacute; thuận tiện&lt;/h3&gt;<br />\r\n&lt;p&gt;<br />\r\nTừ căn hộ, kh&aacute;ch c&oacute; thể dễ d&agrave;ng di chuyển đến c&aacute;c khu vực trung t&acirc;m, trung t&acirc;m thương mại, cửa h&agrave;ng tiện lợi,<br />\r\nqu&aacute;n ăn, c&agrave; ph&ecirc; v&agrave; c&aacute;c tiện &iacute;ch sinh hoạt hằng ng&agrave;y. Đ&acirc;y l&agrave; vị tr&iacute; ph&ugrave; hợp cho cả kh&aacute;ch du lịch muốn kh&aacute;m ph&aacute;<br />\r\nth&agrave;nh phố lẫn kh&aacute;ch thu&ecirc; cần chỗ ở ổn định, tiện đi lại.<br />\r\n&lt;/p&gt;</p>\r\n\r\n<p>&lt;h3&gt;Ph&ugrave; hợp với ai?&lt;/h3&gt;<br />\r\n&lt;ul&gt;<br />\r\n&nbsp; &lt;li&gt;Gia đ&igrave;nh nhỏ cần kh&ocirc;ng gian lưu tr&uacute; sạch sẽ, ri&ecirc;ng tư.&lt;/li&gt;<br />\r\n&nbsp; &lt;li&gt;Nh&oacute;m bạn đi du lịch cần căn hộ đầy đủ tiện nghi.&lt;/li&gt;<br />\r\n&nbsp; &lt;li&gt;Kh&aacute;ch c&ocirc;ng t&aacute;c cần chỗ ở hiện đại, thuận tiện di chuyển.&lt;/li&gt;<br />\r\n&nbsp; &lt;li&gt;Người cần thu&ecirc; ngắn hạn với trải nghiệm thoải m&aacute;i như ở nh&agrave;.&lt;/li&gt;<br />\r\n&lt;/ul&gt;</p>\r\n\r\n<p>&lt;h3&gt;Th&ocirc;ng tin thu&ecirc;&lt;/h3&gt;<br />\r\n&lt;p&gt;<br />\r\nGi&aacute; thu&ecirc; hiện tại: &lt;strong&gt;[Gi&aacute; thu&ecirc;]&lt;/strong&gt;. Căn hộ được cho thu&ecirc; theo h&igrave;nh thức &lt;strong&gt;nguy&ecirc;n căn&lt;/strong&gt;,<br />\r\nđảm bảo sự ri&ecirc;ng tư v&agrave; chủ động trong suốt thời gian lưu tr&uacute;. Kh&aacute;ch c&oacute; thể đặt thu&ecirc; nhanh qua hệ thống,<br />\r\nthanh to&aacute;n tiền cọc trước v&agrave; ho&agrave;n tất phần c&ograve;n lại khi nhận căn theo quy tr&igrave;nh r&otilde; r&agrave;ng.<br />\r\n&lt;/p&gt;</p>\r\n\r\n<p>&lt;p&gt;<br />\r\nNếu bạn đang t&igrave;m một căn hộ vừa đẹp, tiện nghi, dễ ở v&agrave; c&oacute; vị tr&iacute; thuận tiện,&nbsp;<br />\r\n&lt;strong&gt;[T&ecirc;n căn hộ]&lt;/strong&gt; sẽ l&agrave; lựa chọn rất đ&aacute;ng c&acirc;n nhắc.<br />\r\n&lt;/p&gt;<br />\r\n&nbsp;</p>",
+    "image": "apartments/VSC-Face.png",
+    "lat": 10.801,
+    "lng": 106.7195,
+    "bank_name": "",
+    "bank_account_name": "TRUONG GIA BAO",
+    "bank_account_number": "",
+    "momo_name": "",
+    "momo_phone": "",
+    "payment_note": "",
+    "payment_qr": "",
+    "momo_qr": ""
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 1,
+  "fields": {
+    "apartment": 6,
+    "title": "Phòng khách",
+    "description": "",
+    "image": "apartments/gallery/Detail-1_cHxPL0v.png",
+    "display_order": 1,
+    "created_at": "2026-03-31T13:35:23.086Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 2,
+  "fields": {
+    "apartment": 6,
+    "title": "View Toàn cảnh",
+    "description": "",
+    "image": "apartments/gallery/Detail-2_nY40H1J.png",
+    "display_order": 2,
+    "created_at": "2026-03-31T13:38:23.402Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 3,
+  "fields": {
+    "apartment": 6,
+    "title": "Tổng quan phòng khách",
+    "description": "",
+    "image": "apartments/gallery/Detail-3_MNOHlg0.png",
+    "display_order": 3,
+    "created_at": "2026-03-31T13:38:46.992Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 4,
+  "fields": {
+    "apartment": 6,
+    "title": "Ghế Sofa",
+    "description": "",
+    "image": "apartments/gallery/Detail-4_cHVWAOQ.png",
+    "display_order": 4,
+    "created_at": "2026-03-31T13:39:39.905Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 5,
+  "fields": {
+    "apartment": 6,
+    "title": "Phòng ngủ",
+    "description": "",
+    "image": "apartments/gallery/Detail-5_cQl8yrN.png",
+    "display_order": 5,
+    "created_at": "2026-03-31T13:41:41.113Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 6,
+  "fields": {
+    "apartment": 6,
+    "title": "Nội thất đầy đủ",
+    "description": "",
+    "image": "apartments/gallery/Detail-6_VdrI8bo.png",
+    "display_order": 6,
+    "created_at": "2026-03-31T13:42:07.669Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 7,
+  "fields": {
+    "apartment": 5,
+    "title": "Tổng quan phòng khách",
+    "description": "",
+    "image": "apartments/gallery/VGP-details-1.png",
+    "display_order": 1,
+    "created_at": "2026-03-31T17:42:22.432Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 8,
+  "fields": {
+    "apartment": 5,
+    "title": "Phòng khách",
+    "description": "",
+    "image": "apartments/gallery/VGP-details-2.png",
+    "display_order": 2,
+    "created_at": "2026-03-31T17:42:32.123Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 15,
+  "fields": {
+    "apartment": 7,
+    "title": "Phòng ngủ",
+    "description": "",
+    "image": "apartments/gallery/VSC-Details-7.png",
+    "display_order": 4,
+    "created_at": "2026-03-31T17:47:00.605Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 16,
+  "fields": {
+    "apartment": 7,
+    "title": "Tủ đồ",
+    "description": "",
+    "image": "apartments/gallery/VSC-Details-6.png",
+    "display_order": 4,
+    "created_at": "2026-03-31T17:47:45.834Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 17,
+  "fields": {
+    "apartment": 7,
+    "title": "Lối vào",
+    "description": "",
+    "image": "apartments/gallery/VSC-Details-5.png",
+    "display_order": 1,
+    "created_at": "2026-03-31T17:47:58.491Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 18,
+  "fields": {
+    "apartment": 4,
+    "title": "Lối vào",
+    "description": "",
+    "image": "apartments/gallery/PhyMy-Details-1_LLrUqdj.png",
+    "display_order": 1,
+    "created_at": "2026-04-01T01:44:01.347Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 19,
+  "fields": {
+    "apartment": 4,
+    "title": "Phòng ngủ",
+    "description": "",
+    "image": "apartments/gallery/PhyMy-Details-2.png",
+    "display_order": 2,
+    "created_at": "2026-04-01T01:44:24.953Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 20,
+  "fields": {
+    "apartment": 4,
+    "title": "Các tiện ích",
+    "description": "",
+    "image": "apartments/gallery/PhyMy-Details-3.png",
+    "display_order": 3,
+    "created_at": "2026-04-01T01:44:34.712Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 21,
+  "fields": {
+    "apartment": 4,
+    "title": "Phòng ăn",
+    "description": "",
+    "image": "apartments/gallery/PhyMy-Details-5.png",
+    "display_order": 4,
+    "created_at": "2026-04-01T01:46:18.990Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 22,
+  "fields": {
+    "apartment": 4,
+    "title": "Phòng tắm",
+    "description": "",
+    "image": "apartments/gallery/PhyMy-Details-4.png",
+    "display_order": 5,
+    "created_at": "2026-04-01T01:46:37.151Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 23,
+  "fields": {
+    "apartment": 3,
+    "title": "Tổng quan phòng",
+    "description": "",
+    "image": "apartments/gallery/SarimiSala-details-1.png",
+    "display_order": 1,
+    "created_at": "2026-04-01T01:47:27.552Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 24,
+  "fields": {
+    "apartment": 3,
+    "title": "Phòng ăn",
+    "description": "",
+    "image": "apartments/gallery/SarimiSala-details-5.png",
+    "display_order": 2,
+    "created_at": "2026-04-01T01:47:45.079Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 25,
+  "fields": {
+    "apartment": 3,
+    "title": "Phòng ngủ chính",
+    "description": "",
+    "image": "apartments/gallery/SarimiSala-details-4.png",
+    "display_order": 3,
+    "created_at": "2026-04-01T01:50:45.720Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 26,
+  "fields": {
+    "apartment": 3,
+    "title": "Phòng ngủ phụ",
+    "description": "",
+    "image": "apartments/gallery/SarimiSala-details-3.png",
+    "display_order": 4,
+    "created_at": "2026-04-01T01:51:07.604Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 27,
+  "fields": {
+    "apartment": 3,
+    "title": "View ban công",
+    "description": "",
+    "image": "apartments/gallery/SarimiSala-details-2.png",
+    "display_order": 5,
+    "created_at": "2026-04-01T01:51:33.150Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 28,
+  "fields": {
+    "apartment": 2,
+    "title": "Tổng quan phòng",
+    "description": "",
+    "image": "apartments/gallery/TheTresor-Details-1.png",
+    "display_order": 1,
+    "created_at": "2026-04-01T01:53:40.816Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 29,
+  "fields": {
+    "apartment": 2,
+    "title": "Phòng khách",
+    "description": "",
+    "image": "apartments/gallery/TheTresor-Details-4.png",
+    "display_order": 2,
+    "created_at": "2026-04-01T01:54:01.406Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 30,
+  "fields": {
+    "apartment": 2,
+    "title": "Phòng ngủ",
+    "description": "",
+    "image": "apartments/gallery/TheTresor-Details-3.png",
+    "display_order": 3,
+    "created_at": "2026-04-01T01:54:21.330Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 31,
+  "fields": {
+    "apartment": 2,
+    "title": "Phòng tắm",
+    "description": "",
+    "image": "apartments/gallery/TheTresor-Details-2.png",
+    "display_order": 4,
+    "created_at": "2026-04-01T01:54:32.978Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 32,
+  "fields": {
+    "apartment": 1,
+    "title": "Bể bơi",
+    "description": "",
+    "image": "apartments/gallery/Landmark-details-1.png",
+    "display_order": 1,
+    "created_at": "2026-04-01T01:57:43.222Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 33,
+  "fields": {
+    "apartment": 1,
+    "title": "Phòng khách",
+    "description": "",
+    "image": "apartments/gallery/Landmark-details-5.png",
+    "display_order": 2,
+    "created_at": "2026-04-01T01:58:00.420Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 34,
+  "fields": {
+    "apartment": 1,
+    "title": "Phòng ăn",
+    "description": "",
+    "image": "apartments/gallery/Landmark-details-4.png",
+    "display_order": 3,
+    "created_at": "2026-04-01T01:58:10.553Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 35,
+  "fields": {
+    "apartment": 1,
+    "title": "Phòng ngủ 1",
+    "description": "",
+    "image": "apartments/gallery/Landmark-details-2.png",
+    "display_order": 4,
+    "created_at": "2026-04-01T01:58:33.358Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 36,
+  "fields": {
+    "apartment": 1,
+    "title": "Phòng ngủ 2",
+    "description": "",
+    "image": "apartments/gallery/Landmark-details-3.png",
+    "display_order": 5,
+    "created_at": "2026-04-01T01:58:47.796Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 37,
+  "fields": {
+    "apartment": 1,
+    "title": "Phòng ngủ 3",
+    "description": "",
+    "image": "apartments/gallery/Landmark-details-6.png",
+    "display_order": 6,
+    "created_at": "2026-04-01T01:59:06.781Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 38,
+  "fields": {
+    "apartment": 1,
+    "title": "View ban công",
+    "description": "",
+    "image": "apartments/gallery/Landmark-details-7.png",
+    "display_order": 7,
+    "created_at": "2026-04-01T01:59:34.489Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 45,
+  "fields": {
+    "apartment": 5,
+    "title": "Tổng quan phòng ăn",
+    "description": "",
+    "image": "apartments/gallery/VGP-details-3.png",
+    "display_order": 3,
+    "created_at": "2026-04-01T09:54:52.573Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 46,
+  "fields": {
+    "apartment": 5,
+    "title": "Phòng khách 2",
+    "description": "",
+    "image": "apartments/gallery/VGP-details-4.png",
+    "display_order": 4,
+    "created_at": "2026-04-01T09:54:52.584Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 47,
+  "fields": {
+    "apartment": 5,
+    "title": "Ban công",
+    "description": "",
+    "image": "apartments/gallery/VGP-details-5.png",
+    "display_order": 5,
+    "created_at": "2026-04-01T09:54:52.588Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 48,
+  "fields": {
+    "apartment": 5,
+    "title": "Tổng quan phòng",
+    "description": "",
+    "image": "apartments/gallery/VGP-details-6.png",
+    "display_order": 6,
+    "created_at": "2026-04-01T09:54:52.596Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 50,
+  "fields": {
+    "apartment": 7,
+    "title": "Các tiện ích",
+    "description": "",
+    "image": "apartments/gallery/VSC-Details-2.png",
+    "display_order": 2,
+    "created_at": "2026-04-01T09:54:52.602Z"
+  }
+},
+{
+  "model": "myapp.apartmentimage",
+  "pk": 52,
+  "fields": {
+    "apartment": 7,
+    "title": "Phòng khách",
+    "description": "",
+    "image": "apartments/gallery/VSC-Details-3_Y6qufEX.png",
+    "display_order": 3,
+    "created_at": "2026-04-01T09:54:52.607Z"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 1,
+  "fields": {
+    "apartment": 6,
+    "name": "Hồ bơi",
+    "icon": "fa-swimming-pool",
+    "description": ""
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 2,
+  "fields": {
+    "apartment": 7,
+    "name": "Khoảng giá",
+    "icon": "fa-coins",
+    "description": "10,5 triệu/tháng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 3,
+  "fields": {
+    "apartment": 7,
+    "name": "Diện tích",
+    "icon": "fa-chart-area",
+    "description": "65 m²"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 4,
+  "fields": {
+    "apartment": 7,
+    "name": "Số phòng ngủ",
+    "icon": "fa-bed",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 5,
+  "fields": {
+    "apartment": 7,
+    "name": "Số phòng tắm, vệ sinh",
+    "icon": "fa-bath",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 6,
+  "fields": {
+    "apartment": 7,
+    "name": "Hướng nhà",
+    "icon": "fa-compass",
+    "description": "Đông - Nam"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 7,
+  "fields": {
+    "apartment": 7,
+    "name": "Nội thất",
+    "icon": "fa-tv",
+    "description": "Đầy đủ."
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 8,
+  "fields": {
+    "apartment": 6,
+    "name": "Khoảng giá",
+    "icon": "fa-coins",
+    "description": "9 triệu/tháng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 9,
+  "fields": {
+    "apartment": 6,
+    "name": "Diện tích",
+    "icon": "fa-chart-area",
+    "description": "70 m²"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 10,
+  "fields": {
+    "apartment": 6,
+    "name": "Số phòng ngủ",
+    "icon": "fa-bed",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 11,
+  "fields": {
+    "apartment": 6,
+    "name": "Số phòng tắm, vệ sinh",
+    "icon": "fa-bath",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 12,
+  "fields": {
+    "apartment": 6,
+    "name": "Nội thất",
+    "icon": "fa-tv",
+    "description": "Đầy đủ"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 13,
+  "fields": {
+    "apartment": 5,
+    "name": "Khoảng giá",
+    "icon": "fa-coins",
+    "description": "6 triệu/tháng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 14,
+  "fields": {
+    "apartment": 5,
+    "name": "Diện tích",
+    "icon": "fa-chart-area",
+    "description": "69 m²"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 15,
+  "fields": {
+    "apartment": 5,
+    "name": "Số phòng ngủ",
+    "icon": "fa-bed",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 16,
+  "fields": {
+    "apartment": 5,
+    "name": "Số phòng tắm, vệ sinh",
+    "icon": "fa-bath",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 17,
+  "fields": {
+    "apartment": 5,
+    "name": "Hướng nhà",
+    "icon": "fa-compass",
+    "description": "Đông - Nam"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 18,
+  "fields": {
+    "apartment": 5,
+    "name": "Nội thất",
+    "icon": "fa-tv",
+    "description": "Cơ bản"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 19,
+  "fields": {
+    "apartment": 4,
+    "name": "Khoảng giá",
+    "icon": "fa-coins",
+    "description": "9 tr/tháng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 20,
+  "fields": {
+    "apartment": 4,
+    "name": "Số phòng ngủ",
+    "icon": "fa-bed",
+    "description": "1 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 21,
+  "fields": {
+    "apartment": 4,
+    "name": "Số phòng tắm, vệ sinh",
+    "icon": "fa-bath",
+    "description": "1 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 22,
+  "fields": {
+    "apartment": 4,
+    "name": "Diện tích",
+    "icon": "fa-chart-area",
+    "description": "30m²"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 23,
+  "fields": {
+    "apartment": 3,
+    "name": "Khoảng giá",
+    "icon": "fa-coins",
+    "description": "30 triệu/tháng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 24,
+  "fields": {
+    "apartment": 3,
+    "name": "Diện tích",
+    "icon": "fa-chart-area",
+    "description": "88 m²"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 25,
+  "fields": {
+    "apartment": 3,
+    "name": "Số phòng ngủ",
+    "icon": "fa-bed",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 26,
+  "fields": {
+    "apartment": 3,
+    "name": "Số phòng tắm, vệ sinh",
+    "icon": "fa-bath",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 27,
+  "fields": {
+    "apartment": 2,
+    "name": "Khoảng giá",
+    "icon": "fa-coins",
+    "description": "35 triệu/tháng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 28,
+  "fields": {
+    "apartment": 2,
+    "name": "Diện tích",
+    "icon": "fa-chart-area",
+    "description": "98 m²"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 29,
+  "fields": {
+    "apartment": 2,
+    "name": "Số phòng ngủ",
+    "icon": "fa-bed",
+    "description": "3 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 30,
+  "fields": {
+    "apartment": 2,
+    "name": "Số phòng tắm, vệ sinh",
+    "icon": "fa-bath",
+    "description": "2 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 31,
+  "fields": {
+    "apartment": 2,
+    "name": "Nội thất",
+    "icon": "fa-tv",
+    "description": "Đầy đủ"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 32,
+  "fields": {
+    "apartment": 1,
+    "name": "Khoảng giá",
+    "icon": "fa-coins",
+    "description": "185 triệu/tháng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 33,
+  "fields": {
+    "apartment": 1,
+    "name": "Diện tích",
+    "icon": "fa-chart-area",
+    "description": "170 m²"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 34,
+  "fields": {
+    "apartment": 1,
+    "name": "Số phòng ngủ",
+    "icon": "fa-bed",
+    "description": "3 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 35,
+  "fields": {
+    "apartment": 1,
+    "name": "Số phòng tắm, vệ sinh",
+    "icon": "fa-bath",
+    "description": "3 phòng"
+  }
+},
+{
+  "model": "myapp.service",
+  "pk": 36,
+  "fields": {
+    "apartment": 1,
+    "name": "Nội thất",
+    "icon": "fa-tv",
+    "description": "Đầy đủ"
+  }
+}
+]

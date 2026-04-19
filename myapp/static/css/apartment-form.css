@@ -1,0 +1,13 @@
+.apartment-search-status-hidden,
+.apartment-search-results-hidden,
+.apartment-selected-address-hidden {
+    display: none;
+}
+
+.apartment-picker-map {
+    height: 360px;
+    width: 100%;
+    border-radius: 18px;
+    border: 2px solid #d6e2f1;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}

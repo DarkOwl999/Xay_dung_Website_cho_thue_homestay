@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% block title %}Thanh toán đặt cọc thuê căn hộ{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+    <div>
+        <h2 class="mb-1"><i class="fas fa-wallet text-primary"></i> Thanh toán đặt cọc đơn thuê #{{ booking.id }}</h2>
+        <p class="text-muted mb-0">Thanh toán tiền cọc trước cho căn hộ {{ booking.apartment.name }}. Phần còn lại sẽ thanh toán khi nhận căn.</p>
+    </div>
+    <a href="{% url 'booking_history' %}" class="btn btn-outline-primary mt-2 mt-md-0">Lịch sử thuê căn hộ</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Thông tin đơn thuê</h5>
+            </div>
+            <div class="card-body">
+                <div class="payment-summary-item">
+                    <span class="text-muted">Căn hộ</span>
+                    <strong>{{ booking.apartment.name }}</strong>
+                </div>
+                <div class="payment-summary-item">
+                    <span class="text-muted">Hình thức thuê</span>
+                    <strong>Nguyên căn</strong>
+                </div>
+                <div class="payment-summary-item">
+                    <span class="text-muted">Khách hàng</span>
+                    <strong>{{ booking.customer_name }}</strong>
+                </div>
+                <div class="payment-summary-item">
+                    <span class="text-muted">Ngày nhận nhà</span>
+                    <strong>{{ booking.check_in|date:'d/m/Y' }}</strong>
+                </div>
+                <div class="payment-summary-item">
+                    <span class="text-muted">Ngày trả nhà</span>
+                    <strong>{{ booking.check_out|date:'d/m/Y' }}</strong>
+                </div>
+                <div class="payment-summary-item">
+                    <span class="text-muted">Số đêm</span>
+                    <strong>{{ booking.night_count }} đêm</strong>
+                </div>
+                <div class="payment-summary-item">
+                    <span class="text-muted">Giá mỗi đêm</span>
+                    <strong>{{ booking.nightly_rate }} VNĐ</strong>
+                </div>
+                <div class="payment-summary-item">
+                    <span class="text-muted">Số khách</span>
+                    <strong>{{ booking.guests }} người</strong>
+                </div>
+                <div class="payment-summary-item">
+                    <span class="text-muted">Mã giao dịch</span>
+                    <strong>{{ booking.transaction_code|default:'Đang tạo' }}</strong>
+                </div>
+                <div class="payment-summary-total mt-4">
+                    <div class="small text-muted mb-1">Tổng tiền thuê</div>
+                    <div class="h3 mb-0 text-dark font-weight-bold">{{ booking.total_amount }} VNĐ</div>
+                </div>
+                <div class="payment-summary-total mt-4">
+                    <div class="small text-muted mb-1">Tiền cọc thanh toán hôm nay</div>
+                    <div class="h3 mb-0 text-primary font-weight-bold">{{ booking.deposit_amount }} VNĐ</div>
+                </div>
+                <div class="payment-summary-item mt-4">
+                    <span class="text-muted">Còn lại khi nhận căn</span>
+                    <strong>{{ booking.remaining_amount }} VNĐ</strong>
+                </div>
+                <div class="alert alert-light border mt-4 mb-0">
+                    <div class="font-weight-bold mb-1">Trạng thái đơn</div>
+                    <span class="badge badge-{% if booking.status == 'confirmed' or booking.status == 'completed' %}success{% elif booking.status == 'cancelled' %}danger{% else %}warning{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </div>
+                <div class="alert alert-light border mt-4 mb-0">
+                    <div class="font-weight-bold mb-1">Trạng thái thanh toán cọc</div>
+                    <span class="badge badge-{% if booking.payment_status == 'paid' %}success{% elif booking.payment_status == 'failed' %}danger{% else %}warning{% endif %}">
+                        {{ booking.payment_status_display_label }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Chọn phương thức thanh toán cọc</h5>
+            </div>
+            <div class="card-body">
+                {% if not can_update_payment_method %}
+                <div class="alert alert-warning">
+                    {% if booking.status == 'cancelled' %}
+                        Đơn thuê này đã bị hủy nên không thể tiếp tục thanh toán.
+                    {% elif booking.payment_status == 'paid' %}
+                        Đơn thuê này đã thanh toán tiền cọc. Phần còn lại {{ booking.remaining_amount }} VNĐ sẽ thanh toán khi bạn nhận căn.
+                    {% else %}
+                        Đơn thuê này hiện không thể cập nhật thêm phương thức thanh toán cọc.
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="alert alert-info">
+                    Hệ thống chỉ thu tiền cọc <strong>{{ booking.deposit_amount }} VNĐ</strong> ở bước này.
+                    Số tiền còn lại <strong>{{ booking.remaining_amount }} VNĐ</strong> sẽ được thanh toán sau khi tới nhận căn.
+                </div>
+
+                {% if payment_form.payment_method.errors %}
+                <div class="alert alert-danger">
+                    <strong>Chưa thể tiếp tục.</strong>
+                    {{ payment_form.payment_method.errors.0 }}
+                </div>
+                {% endif %}
+
+                {% if can_update_payment_method %}
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    <div class="payment-method-grid">
+                        <label class="payment-method-card {% if selected_payment_method == 'bank_transfer' and has_bank_payment %}active{% endif %} {% if not has_bank_payment %}is-disabled{% endif %}">
+                            <input type="radio" name="payment_method" value="bank_transfer" {% if selected_payment_method == 'bank_transfer' and has_bank_payment %}checked{% endif %} {% if not has_bank_payment %}disabled{% endif %}>
+                            <div class="payment-method-icon bank"><i class="fas fa-university"></i></div>
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                    <div class="font-weight-bold">Chuyển khoản ngân hàng</div>
+                                    <span class="payment-method-status {% if has_bank_payment %}is-ready{% else %}is-disabled{% endif %}">
+                                        {% if has_bank_payment %}Sẵn sàng{% else %}Chưa khả dụng{% endif %}
+                                    </span>
+                                </div>
+                                <div class="small text-muted">Chuyển khoản tiền cọc qua QR hoặc thủ công.</div>
+                                {% if not has_bank_payment %}
+                                <div class="small text-danger mt-2">Căn hộ này chưa có thông tin ngân hàng nên bạn chưa thể chọn cách này.</div>
+                                {% endif %}
+                            </div>
+                        </label>
+
+                        <label class="payment-method-card {% if selected_payment_method == 'momo' and has_momo_payment %}active{% endif %} {% if not has_momo_payment %}is-disabled{% endif %}">
+                            <input type="radio" name="payment_method" value="momo" {% if selected_payment_method == 'momo' and has_momo_payment %}checked{% endif %} {% if not has_momo_payment %}disabled{% endif %}>
+                            <div class="payment-method-icon momo">M</div>
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                    <div class="font-weight-bold">Ví MoMo</div>
+                                    <span class="payment-method-status {% if has_momo_payment %}is-ready{% else %}is-disabled{% endif %}">
+                                        {% if has_momo_payment %}Sẵn sàng{% else %}Chưa khả dụng{% endif %}
+                                    </span>
+                                </div>
+                                <div class="small text-muted">Thanh toán tiền cọc bằng số điện thoại hoặc QR MoMo.</div>
+                                {% if not has_momo_payment %}
+                                <div class="small text-danger mt-2">Căn hộ này chưa có thông tin MoMo nên bạn chưa thể chọn cách này.</div>
+                                {% endif %}
+                            </div>
+                        </label>
+                    </div>
+
+                    {% if has_bank_payment or has_momo_payment %}
+                    <button type="submit" class="btn btn-primary mt-3">
+                        <i class="fas fa-check mr-2"></i>Cập nhật phương thức thanh toán cọc
+                    </button>
+                    {% else %}
+                    <div class="alert alert-danger mt-3 mb-0">
+                        <strong>Chưa thể tiếp tục thanh toán.</strong>
+                        Căn hộ này chưa được cấu hình thông tin ngân hàng hoặc MoMo. Vui lòng liên hệ quản trị viên để được hỗ trợ.
+                    </div>
+                    {% endif %}
+                </form>
+                {% endif %}
+
+                <div class="payment-detail-card mt-4">
+                    {% if selected_payment_method == 'momo' %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Thanh toán tiền cọc bằng MoMo</h5>
+                            <span class="badge badge-info">MoMo</span>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-md-6 mb-3 mb-md-0 text-center">
+                                {% if booking.apartment.momo_qr %}
+                                    <img src="{{ booking.apartment.momo_qr.url }}" alt="QR MoMo" class="payment-qr-image">
+                                {% else %}
+                                    <div class="payment-qr-placeholder">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="payment-summary-item">
+                                    <span class="text-muted">Tên tài khoản MoMo</span>
+                                    <strong>{{ booking.apartment.momo_name|default:'Chưa cập nhật' }}</strong>
+                                </div>
+                                <div class="payment-summary-item">
+                                    <span class="text-muted">Số điện thoại MoMo</span>
+                                    <strong>{{ booking.apartment.momo_phone|default:'Chưa cập nhật' }}</strong>
+                                </div>
+                                <div class="small text-muted mt-3">
+                                    {% if has_momo_payment %}
+                                        Chọn đúng nội dung giao dịch hoặc ghi nhớ mã đơn <strong>{{ booking.transaction_code }}</strong> để admin xác nhận cọc nhanh hơn.
+                                    {% else %}
+                                        Căn hộ này chưa cấu hình thông tin MoMo. Bạn có thể đổi sang chuyển khoản ngân hàng hoặc nhờ admin cập nhật thêm.
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Chuyển khoản tiền cọc</h5>
+                            <span class="badge badge-warning">Bank</span>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-md-6 mb-3 mb-md-0 text-center">
+                                {% if booking.apartment.payment_qr %}
+                                    <img src="{{ booking.apartment.payment_qr.url }}" alt="QR ngân hàng" class="payment-qr-image">
+                                {% else %}
+                                    <div class="payment-qr-placeholder">
+                                        <i class="fas fa-qrcode"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="payment-summary-item">
+                                    <span class="text-muted">Ngân hàng</span>
+                                    <strong>{{ booking.apartment.bank_name|default:'Chưa cập nhật' }}</strong>
+                                </div>
+                                <div class="payment-summary-item">
+                                    <span class="text-muted">Chủ tài khoản</span>
+                                    <strong>{{ booking.apartment.bank_account_name|default:'Chưa cập nhật' }}</strong>
+                                </div>
+                                <div class="payment-summary-item">
+                                    <span class="text-muted">Số tài khoản</span>
+                                    <strong>{{ booking.apartment.bank_account_number|default:'Chưa cập nhật' }}</strong>
+                                </div>
+                                <div class="small text-muted mt-3">
+                                    {% if has_bank_payment %}
+                                        Nội dung chuyển khoản cọc gợi ý: <strong>{{ booking.transaction_code }}</strong>
+                                    {% else %}
+                                        Căn hộ này chưa cấu hình thông tin ngân hàng. Bạn có thể đổi sang MoMo hoặc liên hệ admin để được hỗ trợ.
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="alert alert-light border mt-4 mb-0">
+                    <div class="font-weight-bold mb-1">Ghi chú</div>
+                    <div class="small text-muted">{{ booking.payment_note|default:'Sau khi thanh toán tiền cọc, vui lòng liên hệ admin để xác nhận giao dịch.' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

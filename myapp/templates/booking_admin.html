@@ -1,0 +1,87 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Quản lý đơn thuê căn hộ{% endblock %}
+{% block admin_section %}Đơn thuê{% endblock %}
+{% block admin_page_title %}Quản lý đơn thuê căn hộ{% endblock %}
+{% block admin_page_description %}Từng đơn thuê được gom riêng một trang để theo dõi khách, căn hộ, lịch ở và trạng thái thanh toán rõ ràng hơn.{% endblock %}
+
+{% block admin_body %}
+<section class="admin-panel mt-4">
+    <div class="admin-panel-head">
+        <div>
+            <h3>Danh sách đơn thuê</h3>
+            <p>Tổng số {{ bookings|length }} đơn trong hệ thống.</p>
+        </div>
+    </div>
+
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Khách hàng</th>
+                    <th>Căn hộ</th>
+                    <th>Thời gian ở</th>
+                    <th>Thanh toán</th>
+                    <th>Tổng tiền</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>#{{ booking.id }}</td>
+                    <td>
+                        <div class="admin-table-title">{{ booking.customer_name }}</div>
+                        <div class="admin-table-subtext">{{ booking.phone }}</div>
+                        <div class="admin-table-subtext">{{ booking.email|default:'Chưa có email' }}</div>
+                    </td>
+                    <td>
+                        <div class="admin-table-title">{{ booking.apartment.name }}</div>
+                        <div class="admin-table-subtext">Thuê nguyên căn</div>
+                        <div class="admin-table-subtext">
+                            {% if booking.user %}Tài khoản: {{ booking.user.username }}{% else %}Khách vãng lai{% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div>{{ booking.check_in|date:'d/m/Y' }} - {{ booking.check_out|date:'d/m/Y' }}</div>
+                        <div class="admin-table-subtext">{{ booking.night_count }} đêm</div>
+                        <div class="admin-table-subtext">{{ booking.guests }} khách</div>
+                        <div class="admin-table-subtext">Đơn: {{ booking.get_status_display }}</div>
+                    </td>
+                    <td>
+                        <div class="admin-table-title">{{ booking.get_payment_method_display }}</div>
+                        <span class="admin-status {% if booking.payment_status == 'paid' %}success{% elif booking.payment_status == 'failed' %}danger{% else %}warning{% endif %}">
+                            {{ booking.payment_status_display_label }}
+                        </span>
+                        <div class="admin-table-subtext">{{ booking.transaction_code|default:'Chưa có mã GD' }}</div>
+                    </td>
+                    <td>
+                        <div class="admin-table-title">Tổng: {{ booking.total_amount }} VNĐ</div>
+                        <div class="admin-table-subtext">Cọc: {{ booking.deposit_amount }} VNĐ</div>
+                        <div class="admin-table-subtext">Còn lại: {{ booking.remaining_amount }} VNĐ</div>
+                    </td>
+                    <td>
+                        <div class="admin-inline-actions">
+                            <a href="{% url 'booking_update' booking.id %}" class="admin-primary-btn admin-btn-sm">
+                                <i class="fas fa-pen"></i> Cập nhật
+                            </a>
+                            <form action="{% url 'booking_delete' booking.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="admin-danger-btn admin-btn-sm" onclick="return confirm('Bạn chắc chắn muốn xóa đơn này?');">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="admin-empty">Chưa có đơn thuê căn hộ.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

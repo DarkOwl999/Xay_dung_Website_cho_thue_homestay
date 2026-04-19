@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Lịch sử thuê căn hộ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking-history.css' %}?v=20260407-inline-css-split" />
+{% endblock %}
+
+{% block content %}
+<section class="booking-history-shell">
+    <div class="booking-history-header">
+        <div>
+            <h2><i class="fas fa-history text-primary mr-2"></i>Lịch sử thuê căn hộ</h2>
+            <p>Hiển thị các yêu cầu thuê được gắn với tài khoản hoặc trùng email đăng nhập hiện tại.</p>
+        </div>
+        <a href="{% url 'map_view' %}" class="btn btn-outline-primary btn-lg mt-2 mt-md-0">Tìm thêm căn hộ</a>
+    </div>
+
+    <div class="table-responsive booking-history-table-wrap">
+        <table class="booking-history-table">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Căn hộ</th>
+                    <th>Khách lưu trú</th>
+                    <th>Nhận nhà</th>
+                    <th>Trả nhà</th>
+                    <th>Thanh toán</th>
+                    <th>Ngày tạo</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>
+                        <div class="history-order-code">#{{ booking.id }}</div>
+                        <span class="history-order-meta">{{ booking.transaction_code|default:'Chưa có mã giao dịch' }}</span>
+                    </td>
+                    <td>
+                        <div class="history-apartment-title">{{ booking.apartment.name }}</div>
+                        <div class="history-soft-pill">Thuê nguyên căn</div>
+                        <a href="{% url 'apartment_showcase' booking.apartment.id %}" class="history-link">
+                            <i class="fas fa-arrow-right-circle"></i> Xem chi tiết căn hộ
+                        </a>
+                    </td>
+                    <td>
+                        <div class="history-maintext">{{ booking.customer_name }}</div>
+                        <span class="history-subtext">{{ booking.phone }}</span>
+                        <span class="history-subtext">{{ booking.email|default:'Chưa có email' }}</span>
+                    </td>
+                    <td>
+                        <div class="history-date">{{ booking.check_in|date:'d/m/Y' }}</div>
+                        <span class="history-subtext">{{ booking.nightly_rate }} VNĐ/đêm</span>
+                    </td>
+                    <td>
+                        <div class="history-date">{{ booking.check_out|date:'d/m/Y' }}</div>
+                        <span class="history-subtext">{{ booking.night_count }} đêm</span>
+                    </td>
+                    <td>
+                        <div class="history-payment-title">{{ booking.get_payment_method_display }}</div>
+                        <span class="history-payment-line">Đơn: {{ booking.get_status_display }}</span>
+                        <span class="history-payment-line">Cọc: {{ booking.deposit_amount }} VNĐ</span>
+                        <span class="history-payment-line">Còn lại: {{ booking.remaining_amount }} VNĐ</span>
+                        <span class="history-status-pill {% if booking.payment_status == 'paid' %}paid{% elif booking.payment_status == 'failed' %}failed{% elif booking.payment_status == 'refunded' %}refunded{% else %}pending{% endif %}">
+                            {{ booking.payment_status_display_label }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="history-date">{{ booking.created_at|date:'d/m/Y' }}</div>
+                        <span class="history-subtext">{{ booking.created_at|date:'H:i' }}</span>
+                    </td>
+                    <td>
+                        <div class="history-actions">
+                            {% if booking.status == 'cancelled' %}
+                            <span class="btn btn-secondary disabled">Đơn đã hủy</span>
+                            {% else %}
+                            <a href="{% url 'booking_payment' booking.access_token %}" class="btn btn-primary">
+                                <i class="fas fa-wallet mr-2"></i>{% if booking.can_update_payment_method %}Thanh toán cọc{% else %}Xem đặt cọc{% endif %}
+                            </a>
+                            {% endif %}
+
+                            {% if booking.can_customer_cancel %}
+                            <form action="{% url 'booking_cancel' booking.access_token %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-block" onclick="return confirm('Bạn chắc chắn muốn hủy đơn đặt này?');">
+                                    <i class="fas fa-times mr-2"></i>Hủy đặt
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <a href="{% url 'apartment_detail' booking.apartment.id %}" class="btn btn-light border">
+                                Xem căn hộ
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="history-empty">
+                        <div class="history-empty-copy">Bạn chưa có yêu cầu thuê căn hộ nào.</div>
+                        <a href="{% url 'map_view' %}" class="btn btn-primary btn-lg">Khám phá căn hộ ngay</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

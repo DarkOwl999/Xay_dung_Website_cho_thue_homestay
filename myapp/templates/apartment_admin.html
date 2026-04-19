@@ -1,0 +1,92 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Quản lý căn hộ{% endblock %}
+{% block admin_section %}Căn hộ{% endblock %}
+{% block admin_page_title %}Quản lý căn hộ{% endblock %}
+{% block admin_page_description %}Toàn bộ căn hộ cho thuê nguyên căn được quản lý tập trung tại đây, dễ sửa thông tin, giá, hình ảnh, nội dung mở rộng và cấu hình thanh toán.{% endblock %}
+
+{% block admin_page_actions %}
+<a href="{% url 'apartment_create' %}" class="admin-primary-btn">
+    <i class="fas fa-plus"></i> Thêm căn hộ
+</a>
+{% endblock %}
+
+{% block admin_body %}
+<section class="admin-panel mt-4">
+    <div class="admin-panel-head">
+        <div>
+            <h3>Danh sách căn hộ</h3>
+            <p>Tổng số {{ apartments|length }} căn hộ đang được quản lý.</p>
+        </div>
+    </div>
+
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Hình ảnh</th>
+                    <th>Thông tin căn hộ</th>
+                    <th>Giá</th>
+                    <th>Hình thức thuê</th>
+                    <th>Thanh toán</th>
+                    <th>Nội dung</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for apt in apartments %}
+                <tr>
+                    <td>#{{ apt.id }}</td>
+                    <td>
+                        {% if apt.image %}
+                            <img src="{{ apt.image.url }}" alt="{{ apt.name }}" class="admin-table-thumb">
+                        {% else %}
+                            <div class="admin-thumb-placeholder">Không có ảnh</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="admin-table-title">{{ apt.name }}</div>
+                        <div class="admin-table-subtext">{{ apt.address }}</div>
+                    </td>
+                    <td>{{ apt.price }}</td>
+                    <td>
+                        <div class="admin-table-title">Nguyên căn</div>
+                        <div class="admin-table-subtext">Không chia theo phòng</div>
+                    </td>
+                    <td>
+                        {% if apt.payment_qr or apt.bank_account_number or apt.bank_name or apt.momo_phone %}
+                            <span class="admin-status success">Đã cấu hình</span>
+                        {% else %}
+                            <span class="admin-status muted">Chưa có</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'apartment_content_admin' apt.id %}" class="admin-ghost-btn admin-btn-sm">
+                            <i class="fas fa-images"></i> Ảnh và dịch vụ
+                        </a>
+                    </td>
+                    <td>
+                        <div class="admin-inline-actions">
+                            <a href="{% url 'apartment_update' apt.id %}" class="admin-primary-btn admin-btn-sm">
+                                <i class="fas fa-pen"></i> Sửa
+                            </a>
+                            <form action="{% url 'apartment_delete' apt.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="admin-danger-btn admin-btn-sm" onclick="return confirm('Bạn chắc chắn muốn xóa căn hộ này?');">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="admin-empty">Chưa có dữ liệu căn hộ.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

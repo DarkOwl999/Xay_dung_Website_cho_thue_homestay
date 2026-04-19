@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Giới thiệu CanHo24h{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/intro-page.css' %}?v=20260414-editorial-resort" />
+{% endblock %}
+
+{% block content_wrapper %}
+<div class="intro-page intro-page--editorial">
+    <section class="intro-editorial-hero">
+        <aside class="intro-editorial-rail">
+            <a href="{% url 'home' %}" class="intro-editorial-brand">{{ intro_content.hero_badge }}</a>
+            <nav class="intro-editorial-nav">
+                <a href="{% url 'home' %}">Trang chủ</a>
+                <a href="#intro-featured">Căn hộ</a>
+                <a href="#intro-story">Câu chuyện</a>
+                <a href="{% url 'map_view' %}">Bản đồ GIS</a>
+                <a href="#intro-contact">Liên hệ</a>
+            </nav>
+            <div class="intro-editorial-meta">
+                <span>Luxury apartment living</span>
+                <p>TP.HCM, Việt Nam</p>
+            </div>
+            <div class="intro-editorial-socials">
+                <a href="tel:+84987654321" aria-label="Gọi điện"><i class="fas fa-phone-alt"></i></a>
+                <a href="mailto:contact@myhomegis.vn" aria-label="Gửi email"><i class="fas fa-envelope"></i></a>
+                <a href="{% url 'map_view' %}" aria-label="Xem bản đồ"><i class="fas fa-map-marked-alt"></i></a>
+            </div>
+        </aside>
+
+        <div class="intro-editorial-stage">
+            <div class="intro-editorial-canvas">
+                <div class="intro-editorial-image">
+                    {% if intro_content.hero_image %}
+                    <img src="{{ intro_content.hero_image.url }}" alt="{{ intro_content.hero_title }}">
+                    {% else %}
+                    <img
+                        src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80"
+                        alt="Không gian nghỉ dưỡng"
+                        loading="lazy"
+                    >
+                    {% endif %}
+                </div>
+
+                <div class="intro-editorial-banner">
+                    <span class="intro-editorial-kicker">{{ intro_content.hero_badge }}</span>
+                    <h1>{{ intro_content.hero_title }}</h1>
+                    <p>{{ intro_content.hero_description }}</p>
+                </div>
+
+                <div class="intro-editorial-preview-card">
+                    <div class="intro-editorial-preview-media">
+                        {% if intro_content.hero_image_secondary %}
+                        <img src="{{ intro_content.hero_image_secondary.url }}" alt="{{ intro_content.hero_title }}">
+                        {% elif intro_content.hero_image %}
+                        <img src="{{ intro_content.hero_image.url }}" alt="{{ intro_content.hero_title }}">
+                        {% else %}
+                        <img
+                            src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80"
+                            alt="Không gian căn hộ"
+                            loading="lazy"
+                        >
+                        {% endif %}
+                    </div>
+                    <div class="intro-editorial-preview-copy">
+                        <span>Private selection</span>
+                        <strong>Không gian nghỉ dưỡng được tuyển chọn</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="intro-editorial-booking-bar">
+                <div class="intro-editorial-booking-item">
+                    <label>Trải nghiệm</label>
+                    <strong>Thuê nguyên căn</strong>
+                </div>
+                <div class="intro-editorial-booking-item">
+                    <label>Kho dữ liệu</label>
+                    <strong>{{ intro_stats.apartment_count }} căn hộ</strong>
+                </div>
+                <div class="intro-editorial-booking-item">
+                    <label>Xác thực</label>
+                    <strong>{{ intro_stats.review_count }} đánh giá</strong>
+                </div>
+                <a href="{{ intro_content.cta_button_link|default:'/map/' }}" class="intro-editorial-book-btn">
+                    {{ intro_content.cta_button_text }}
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="intro-featured" class="intro-editorial-section">
+        <div class="intro-editorial-section-head">
+            <div>
+                <span class="intro-editorial-kicker">Featured stays</span>
+                <h2>Bộ sưu tập căn hộ nổi bật theo phong cách nghỉ dưỡng</h2>
+            </div>
+            <p>Thiết kế trang giới thiệu được làm theo tinh thần editorial như mẫu bạn gửi, nhưng nội dung và các thẻ căn hộ vẫn lấy từ dữ liệu thật trong hệ thống để quản lý thuận tiện hơn.</p>
+        </div>
+
+        <div class="intro-editorial-card-grid">
+            {% for apt in featured_apartments %}
+            <article class="intro-editorial-stay-card {% if forloop.first %}is-featured{% endif %}">
+                <a href="{% url 'apartment_detail' apt.id %}" class="intro-editorial-stay-media">
+                    <img src="{{ apt.cover_image_url }}" alt="{{ apt.name }}">
+                </a>
+                <div class="intro-editorial-stay-body">
+                    <div class="intro-editorial-stay-topline">
+                        <h3>{{ apt.name }}</h3>
+                        <span>{{ apt.price }}đ</span>
+                    </div>
+                    <div class="intro-editorial-stay-meta">Luxury stay / nguyên căn</div>
+                    <p>{{ apt.address|truncatechars:92 }}</p>
+                    <div class="intro-editorial-stay-actions">
+                        <a href="{% url 'apartment_detail' apt.id %}">Xem chi tiết</a>
+                        <a href="{% url 'map_view' %}?target_id={{ apt.id }}">Chỉ đường</a>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <article class="intro-editorial-empty-card">
+                <h3>Chưa có căn hộ nổi bật</h3>
+                <p>Hãy thêm căn hộ trong khu quản trị để phần bộ sưu tập này hiển thị tự động trên trang giới thiệu.</p>
+                <a href="{% url 'map_view' %}" class="intro-editorial-book-btn">Mở bản đồ căn hộ</a>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="intro-story" class="intro-editorial-section intro-editorial-story-section">
+        <div class="intro-editorial-story-layout">
+            <div class="intro-editorial-story-copy">
+                <span class="intro-editorial-kicker">Story</span>
+                <h2>{{ intro_content.story_title }}</h2>
+                <div class="intro-editorial-story-content">
+                    {{ intro_content.story_content|safe }}
+                </div>
+            </div>
+
+            <aside class="intro-editorial-story-aside">
+                <div class="intro-editorial-story-photo">
+                    {% if intro_content.story_image %}
+                    <img src="{{ intro_content.story_image.url }}" alt="{{ intro_content.story_title }}">
+                    {% elif intro_content.hero_image %}
+                    <img src="{{ intro_content.hero_image.url }}" alt="{{ intro_content.story_title }}">
+                    {% else %}
+                    <img
+                        src="https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1000&q=80"
+                        alt="Căn hộ cao cấp"
+                        loading="lazy"
+                    >
+                    {% endif %}
+                </div>
+                <div class="intro-editorial-problem-box">
+                    <span>Why guests hesitate</span>
+                    <ul>
+                        {% for item in intro_problem_points %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="intro-editorial-section intro-editorial-highlights">
+        <div class="intro-editorial-section-head">
+            <div>
+                <span class="intro-editorial-kicker">Experience design</span>
+                <h2>Những điểm làm trải nghiệm xem và thuê căn hộ rõ ràng hơn</h2>
+            </div>
+            <p>Từng khối nội dung bên dưới lấy trực tiếp từ phần quản trị trang giới thiệu, nên bạn có thể đổi tiêu đề hoặc mô tả mà không cần sửa code lần nữa.</p>
+        </div>
+
+        <div class="intro-editorial-highlight-grid">
+            {% for item in intro_solution_points %}
+            <article class="intro-editorial-highlight-card">
+                <div class="intro-editorial-highlight-icon">
+                    <i class="{{ item.icon }}"></i>
+                </div>
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.description }}</p>
+            </article>
+            {% endfor %}
+        </div>
+
+        <div class="intro-editorial-metrics">
+            <article>
+                <strong>{{ intro_stats.apartment_count }}</strong>
+                <span>Căn hộ đã lên hệ thống</span>
+            </article>
+            <article>
+                <strong>{{ intro_stats.booking_count }}</strong>
+                <span>Yêu cầu thuê đã tạo</span>
+            </article>
+            <article>
+                <strong>{{ intro_stats.review_count }}</strong>
+                <span>Đánh giá đã ghi nhận</span>
+            </article>
+        </div>
+    </section>
+
+    <section id="intro-contact" class="intro-editorial-section intro-editorial-cta">
+        <div class="intro-editorial-cta-copy">
+            <span class="intro-editorial-kicker">Final call</span>
+            <h2>{{ intro_content.cta_title }}</h2>
+            <p>{{ intro_content.cta_description }}</p>
+            <div class="intro-editorial-cta-actions">
+                <a href="{{ intro_content.cta_button_link|default:'/map/' }}" class="intro-editorial-book-btn">
+                    {{ intro_content.cta_button_text }}
+                </a>
+                <a href="{% url 'booking_history' %}" class="intro-editorial-secondary-link">Xem lịch sử thuê</a>
+            </div>
+        </div>
+
+        <div class="intro-editorial-cta-side">
+            <div class="intro-editorial-contact-card">
+                <span>Contact</span>
+                <a href="tel:+84987654321">+84 987 654 321</a>
+                <a href="mailto:contact@myhomegis.vn">contact@myhomegis.vn</a>
+                <a href="{% url 'map_view' %}">Khám phá trên bản đồ GIS</a>
+            </div>
+            <div class="intro-editorial-cta-media">
+                {% if intro_content.cta_image %}
+                <img src="{{ intro_content.cta_image.url }}" alt="{{ intro_content.cta_title }}">
+                {% elif intro_content.hero_image_secondary %}
+                <img src="{{ intro_content.hero_image_secondary.url }}" alt="{{ intro_content.cta_title }}">
+                {% elif intro_content.hero_image %}
+                <img src="{{ intro_content.hero_image.url }}" alt="{{ intro_content.cta_title }}">
+                {% else %}
+                <img
+                    src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80"
+                    alt="Không gian nghỉ dưỡng"
+                    loading="lazy"
+                >
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

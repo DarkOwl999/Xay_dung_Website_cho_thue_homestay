@@ -1,0 +1,425 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} căn hộ{% endblock %}
+{% block admin_section %}Căn hộ{% endblock %}
+{% block admin_page_title %}{{ action }} căn hộ{% endblock %}
+{% block admin_page_description %}Cập nhật thông tin căn hộ trong một form riêng, gồm mô tả, thanh toán và tìm vị trí trên bản đồ cho bố cục gọn gàng hơn.{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="{% static 'css/apartment-form.css' %}?v=20260407-inline-css-split" />
+{% endblock %}
+
+{% block admin_page_actions %}
+<a href="{% url 'apartment_admin' %}" class="admin-ghost-btn">
+    <i class="fas fa-arrow-left"></i> Về danh sách căn hộ
+</a>
+{% endblock %}
+
+{% block admin_body %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+{{ form.media }}
+
+<section class="admin-panel admin-form-card mt-4">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="admin-form-grid">
+            <div class="admin-form-field">
+                <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                {{ form.name }}
+                {% if form.name.errors %}<small class="form-error">{{ form.name.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field">
+                <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
+                {{ form.price }}
+                {% if form.price.errors %}<small class="form-error">{{ form.price.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field admin-form-field--full">
+                <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                {{ form.address }}
+                {% if form.address.errors %}<small class="form-error">{{ form.address.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field admin-form-field--full">
+                <label for="{{ form.desc.id_for_label }}">{{ form.desc.label }}</label>
+                {{ form.desc }}
+                {% if form.desc.help_text %}<small class="form-text text-muted d-block mt-2">{{ form.desc.help_text }}</small>{% endif %}
+                {% if form.desc.errors %}<small class="form-error">{{ form.desc.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field admin-form-field--full">
+                <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                {{ form.image }}
+                {% if form.image.errors %}<small class="form-error">{{ form.image.errors.0 }}</small>{% endif %}
+            </div>
+        </div>
+
+        <div class="admin-note-card mt-4">
+            <strong><i class="fas fa-qrcode mr-2"></i>Cấu hình thanh toán</strong>
+            <p class="mb-0 mt-2">Khu này tách riêng để bạn nhập thông tin ngân hàng, MoMo và QR. Khách sẽ thấy ở bước thanh toán sau khi đặt phòng.</p>
+        </div>
+
+        <div class="admin-form-grid mt-4">
+            <div class="admin-form-field">
+                <label for="{{ form.bank_name.id_for_label }}">{{ form.bank_name.label }}</label>
+                {{ form.bank_name }}
+                {% if form.bank_name.errors %}<small class="form-error">{{ form.bank_name.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field">
+                <label for="{{ form.bank_account_name.id_for_label }}">{{ form.bank_account_name.label }}</label>
+                {{ form.bank_account_name }}
+                {% if form.bank_account_name.errors %}<small class="form-error">{{ form.bank_account_name.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field">
+                <label for="{{ form.bank_account_number.id_for_label }}">{{ form.bank_account_number.label }}</label>
+                {{ form.bank_account_number }}
+                {% if form.bank_account_number.errors %}<small class="form-error">{{ form.bank_account_number.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field">
+                <label for="{{ form.momo_name.id_for_label }}">{{ form.momo_name.label }}</label>
+                {{ form.momo_name }}
+                {% if form.momo_name.errors %}<small class="form-error">{{ form.momo_name.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field">
+                <label for="{{ form.momo_phone.id_for_label }}">{{ form.momo_phone.label }}</label>
+                {{ form.momo_phone }}
+                {% if form.momo_phone.errors %}<small class="form-error">{{ form.momo_phone.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field admin-form-field--full">
+                <label for="{{ form.payment_note.id_for_label }}">{{ form.payment_note.label }}</label>
+                {{ form.payment_note }}
+                {% if form.payment_note.errors %}<small class="form-error">{{ form.payment_note.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field">
+                <label for="{{ form.payment_qr.id_for_label }}">{{ form.payment_qr.label }}</label>
+                {{ form.payment_qr }}
+                {% if form.payment_qr.errors %}<small class="form-error">{{ form.payment_qr.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="admin-form-field">
+                <label for="{{ form.momo_qr.id_for_label }}">{{ form.momo_qr.label }}</label>
+                {{ form.momo_qr }}
+                {% if form.momo_qr.errors %}<small class="form-error">{{ form.momo_qr.errors.0 }}</small>{% endif %}
+            </div>
+        </div>
+
+        {% if form.instance.payment_qr or form.instance.momo_qr %}
+        <div class="admin-preview-grid">
+            {% if form.instance.payment_qr %}
+            <div class="admin-preview-card">
+                <strong>QR ngân hàng hiện tại</strong>
+                <img src="{{ form.instance.payment_qr.url }}" alt="QR ngân hàng hiện tại" class="booking-payment-qr">
+            </div>
+            {% endif %}
+
+            {% if form.instance.momo_qr %}
+            <div class="admin-preview-card">
+                <strong>QR MoMo hiện tại</strong>
+                <img src="{{ form.instance.momo_qr.url }}" alt="QR MoMo hiện tại" class="booking-payment-qr">
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="admin-map-card">
+            <div class="admin-panel-head">
+                <div>
+                    <h3>Tìm và chọn vị trí trên bản đồ</h3>
+                    <p>Tìm địa điểm cụ thể, chọn kết quả hoặc click trực tiếp lên bản đồ để điền lat/lng.</p>
+                </div>
+            </div>
+
+            <div class="admin-form-grid">
+                <div class="admin-form-field admin-form-field--full">
+                    <label for="locationSearchInput">Tìm kiếm vị trí cụ thể</label>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="locationSearchInput"
+                            class="form-control"
+                            placeholder="Ví dụ: Landmark 81, Nguyễn Huệ, Phú Mỹ Hưng..."
+                        >
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" id="locationSearchBtn">
+                                <i class="fas fa-search mr-1"></i> Tìm vị trí
+                            </button>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Chọn một kết quả để map nhảy tới đúng điểm và tự điền địa chỉ, vĩ độ, kinh độ.</small>
+                    <div id="locationSearchStatus" class="small text-muted mt-2 apartment-search-status-hidden"></div>
+                    <div id="locationSearchResults" class="list-group mt-3 apartment-search-results-hidden"></div>
+                </div>
+
+                <div class="admin-form-field">
+                    <label for="{{ form.lat.id_for_label }}">{{ form.lat.label }}</label>
+                    {{ form.lat }}
+                    {% if form.lat.errors %}<small class="form-error">{{ form.lat.errors.0 }}</small>{% endif %}
+                </div>
+
+                <div class="admin-form-field">
+                    <label for="{{ form.lng.id_for_label }}">{{ form.lng.label }}</label>
+                    {{ form.lng }}
+                    {% if form.lng.errors %}<small class="form-error">{{ form.lng.errors.0 }}</small>{% endif %}
+                </div>
+            </div>
+
+            <div id="picker-map" class="apartment-picker-map"></div>
+            <div id="selectedMapAddress" class="alert alert-light border mt-3 mb-0 apartment-selected-address-hidden"></div>
+            <small class="form-text text-muted mt-2">Click vào bản đồ để tự động điền vĩ độ và kinh độ.</small>
+        </div>
+
+        <div class="admin-form-actions">
+            <button type="submit" class="admin-primary-btn">
+                <i class="fas fa-save"></i> Lưu dữ liệu
+            </button>
+            <a href="{% url 'apartment_admin' %}" class="admin-secondary-btn">
+                <i class="fas fa-times"></i> Hủy
+            </a>
+        </div>
+    </form>
+</section>
+
+<script>
+    const DEFAULT_LAT = 10.7721;
+    const DEFAULT_LNG = 106.6983;
+
+    const latInput = document.getElementById('id_lat');
+    const lngInput = document.getElementById('id_lng');
+    const addressInput = document.getElementById('id_address');
+    const locationSearchInput = document.getElementById('locationSearchInput');
+    const locationSearchBtn = document.getElementById('locationSearchBtn');
+    const locationSearchResults = document.getElementById('locationSearchResults');
+    const locationSearchStatus = document.getElementById('locationSearchStatus');
+    const selectedMapAddress = document.getElementById('selectedMapAddress');
+
+    latInput.readOnly = true;
+    lngInput.readOnly = true;
+    latInput.style.backgroundColor = '#eef3f8';
+    lngInput.style.backgroundColor = '#eef3f8';
+
+    const startLat = latInput.value ? parseFloat(latInput.value) : DEFAULT_LAT;
+    const startLng = lngInput.value ? parseFloat(lngInput.value) : DEFAULT_LNG;
+
+    const map = L.map('picker-map').setView([startLat, startLng], 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+
+    let marker = null;
+    let reverseLookupRequestId = 0;
+
+    function updateLatLngInputs(lat, lng) {
+        latInput.value = lat.toFixed(6);
+        lngInput.value = lng.toFixed(6);
+
+        latInput.style.transition = 'background-color 0.3s';
+        lngInput.style.transition = 'background-color 0.3s';
+        latInput.style.backgroundColor = '#d4edda';
+        lngInput.style.backgroundColor = '#d4edda';
+
+        setTimeout(() => {
+            latInput.style.backgroundColor = '#eef3f8';
+            lngInput.style.backgroundColor = '#eef3f8';
+        }, 500);
+    }
+
+    function placeMarker(lat, lng, label) {
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng]).addTo(map);
+        }
+
+        if (label) {
+            marker.bindPopup(label).openPopup();
+        }
+
+        map.setView([lat, lng], 16);
+        updateLatLngInputs(lat, lng);
+    }
+
+    function setSelectedMapAddressMessage(message, tone) {
+        if (!selectedMapAddress) return;
+
+        if (!message) {
+            selectedMapAddress.style.display = 'none';
+            selectedMapAddress.textContent = '';
+            return;
+        }
+
+        selectedMapAddress.style.display = 'block';
+        selectedMapAddress.className = `alert alert-${tone || 'light'} border mt-3 mb-0`;
+        selectedMapAddress.textContent = message;
+    }
+
+    function syncAddressInput(address) {
+        if (addressInput && address) {
+            addressInput.value = address;
+        }
+        if (address) {
+            setSelectedMapAddressMessage(`Địa chỉ điểm đã chọn: ${address}`, 'light');
+        }
+    }
+
+    function renderLocationResults(results) {
+        locationSearchResults.innerHTML = '';
+
+        if (!results.length) {
+            locationSearchStatus.style.display = 'block';
+            locationSearchStatus.className = 'small text-warning mt-2';
+            locationSearchStatus.textContent = 'Không tìm thấy vị trí phù hợp.';
+            locationSearchResults.style.display = 'none';
+            return;
+        }
+
+        locationSearchStatus.style.display = 'block';
+        locationSearchStatus.className = 'small text-success mt-2';
+        locationSearchStatus.textContent = `Tìm thấy ${results.length} vị trí. Chọn một kết quả bên dưới.`;
+        locationSearchResults.style.display = 'block';
+
+        results.forEach((result) => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'list-group-item list-group-item-action text-left';
+            item.innerHTML = `
+                <div class="font-weight-bold text-dark">${result.name}</div>
+                <div class="small text-muted mt-1">Lat: ${result.lat.toFixed(6)} | Lng: ${result.lng.toFixed(6)}</div>
+            `;
+            item.addEventListener('click', () => {
+                placeMarker(result.lat, result.lng, result.name);
+                syncAddressInput(result.name);
+                locationSearchResults.style.display = 'none';
+                locationSearchStatus.style.display = 'block';
+                locationSearchStatus.className = 'small text-primary mt-2';
+                locationSearchStatus.textContent = 'Đã chọn vị trí từ kết quả tìm kiếm.';
+            });
+            locationSearchResults.appendChild(item);
+        });
+    }
+
+    async function fetchLocationResults(keyword) {
+        try {
+            const response = await fetch(`/api/geocode-place/?q=${encodeURIComponent(keyword)}`);
+            const data = await response.json();
+            if (response.ok && Array.isArray(data.results)) {
+                return data.results;
+            }
+        } catch (error) {
+        }
+
+        const fallbackUrl = `https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&q=${encodeURIComponent(keyword)}`;
+        const fallbackResponse = await fetch(fallbackUrl);
+        const fallbackData = await fallbackResponse.json();
+        return (fallbackData || []).map((item) => ({
+            name: item.display_name || '',
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+        }));
+    }
+
+    async function fetchReverseGeocode(lat, lng) {
+        try {
+            const response = await fetch(`/api/reverse-geocode/?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+            const data = await response.json();
+            if (response.ok && data.address) {
+                return data.address;
+            }
+        } catch (error) {
+        }
+
+        const fallbackUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`;
+        const fallbackResponse = await fetch(fallbackUrl);
+        const fallbackData = await fallbackResponse.json();
+        return fallbackData.display_name || '';
+    }
+
+    async function searchLocation() {
+        const keyword = locationSearchInput.value.trim();
+        if (!keyword) {
+            locationSearchStatus.style.display = 'block';
+            locationSearchStatus.className = 'small text-danger mt-2';
+            locationSearchStatus.textContent = 'Vui lòng nhập tên vị trí cần tìm.';
+            locationSearchResults.style.display = 'none';
+            return;
+        }
+
+        locationSearchStatus.style.display = 'block';
+        locationSearchStatus.className = 'small text-muted mt-2';
+        locationSearchStatus.textContent = 'Đang tìm vị trí...';
+        locationSearchResults.style.display = 'none';
+
+        try {
+            const results = await fetchLocationResults(keyword);
+            renderLocationResults(results || []);
+        } catch (error) {
+            locationSearchStatus.style.display = 'block';
+            locationSearchStatus.className = 'small text-danger mt-2';
+            locationSearchStatus.textContent = error.message || 'Đã xảy ra lỗi khi tìm vị trí.';
+            locationSearchResults.style.display = 'none';
+        }
+    }
+
+    async function handleMapSelection(lat, lng) {
+        const requestId = ++reverseLookupRequestId;
+        placeMarker(lat, lng, 'Đang lấy địa chỉ...');
+        setSelectedMapAddressMessage('Đang lấy địa chỉ cho điểm bạn vừa ghim...', 'info');
+
+        try {
+            const resolvedAddress = await fetchReverseGeocode(lat, lng);
+            if (requestId !== reverseLookupRequestId) return;
+
+            if (resolvedAddress) {
+                syncAddressInput(resolvedAddress);
+                placeMarker(lat, lng, resolvedAddress);
+                return;
+            }
+
+            placeMarker(lat, lng, 'Vị trí đã chọn');
+            setSelectedMapAddressMessage('Đã ghim vị trí nhưng chưa lấy được địa chỉ tự động. Bạn có thể nhập tay ở ô Địa chỉ.', 'warning');
+        } catch (error) {
+            if (requestId !== reverseLookupRequestId) return;
+            placeMarker(lat, lng, 'Vị trí đã chọn');
+            setSelectedMapAddressMessage('Đã ghim vị trí nhưng chưa lấy được địa chỉ tự động. Bạn có thể nhập tay ở ô Địa chỉ.', 'warning');
+        }
+    }
+
+    if (latInput.value && lngInput.value) {
+        const initialAddress = addressInput ? addressInput.value.trim() : '';
+        placeMarker(startLat, startLng, initialAddress);
+        if (initialAddress) {
+            syncAddressInput(initialAddress);
+        }
+    }
+
+    map.on('click', function(e) {
+        const clickedLat = e.latlng.lat;
+        const clickedLng = e.latlng.lng;
+        handleMapSelection(clickedLat, clickedLng);
+    });
+
+    locationSearchBtn.addEventListener('click', searchLocation);
+    locationSearchInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            searchLocation();
+        }
+    });
+</script>
+{% endblock %}
