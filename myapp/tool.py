@@ -5,7 +5,6 @@ import unicodedata
 import polyline
 import requests
 
-
 def get_travel_speed_kmh(mode):
     speeds = {
         "walking": 5,
@@ -13,8 +12,7 @@ def get_travel_speed_kmh(mode):
         "driving": 35,
     }
     return speeds.get(mode, 35)
-
-
+    
 def estimate_duration_minutes(distance_km, mode="driving"):
     if distance_km <= 0:
         return 0
