@@ -39,6 +39,69 @@ def haversine_distance_km(start_lat, start_lng, end_lat, end_lng):
     return earth_radius_km * c
 
 
+class RoutingTool:
+    OSRM_URL = "http://router.project-osrm.org/route/v1"
+
+    def get_route(self, start_lat, start_lng, end_lat, end_lng, mode="driving"):
+        try:
+            s_lat, s_lng = float(start_lat), float(start_lng)
+            e_lat, e_lng = float(end_lat), float(end_lng)
+        except ValueError:
+            return {"error": "Toa do loi."}
+
+        osrm_mode_map = {
+            "driving": "driving",
+            "cycling": "cycling",
+            "walking": "walking",
+        }
+        osrm_profile = osrm_mode_map.get(mode, "driving")
+        coords = f"{s_lng},{s_lat};{e_lng},{e_lat}"
+        url = f"{self.OSRM_URL}/{osrm_profile}/{coords}"
+        params = {
+            "overview": "full",
+            "geometries": "polyline",
+            "steps": "true",
+            "alternatives": "true",
+        }
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/91.0.4472.124 Safari/537.36"
+            )
+        }
+
+        try:
+            response = requests.get(url, params=params, headers=headers, timeout=10)
+            data = response.json()
+            if response.status_code == 200 and data.get("code") == "Ok":
+                routes_result = []
+                for index, route in enumerate(data["routes"]):
+                    distance_km = route["distance"] / 1000
+                    duration_min = estimate_duration_minutes(distance_km, mode)
+                    summary_name = ""
+                    if route.get("legs"):
+                        summary_name = route["legs"][0].get("summary", "")
+                    if not summary_name:
+                        summary_name = f"Tuyen duong {index + 1}"
+
+                    routes_result.append(
+                        {
+                            "id": index,
+                            "summary": summary_name,
+                            "distance_km": round(distance_km, 2),
+                            "duration_min": duration_min,
+                            "route_points": polyline.decode(route["geometry"]),
+                        }
+                    )
+                return {
+                    "routes": routes_result,
+                    "mode": mode,
+                }
+            return {"error": "Khong tim thay duong di nao."}
+        except Exception as exc:
+            return {"error": f"Loi he thong: {str(exc)}"}
+
 
 class GISSearchTool:
     def __init__(self):
