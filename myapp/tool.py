@@ -80,7 +80,12 @@ class RoutingTool:
                 routes_result = []
                 for index, route in enumerate(data["routes"]):
                     distance_km = route["distance"] / 1000
-                    duration_min = estimate_duration_minutes(distance_km, mode)
+                    raw_duration_seconds = route.get("duration", 0)
+                    duration_min = (
+                        max(1, round(raw_duration_seconds / 60))
+                        if raw_duration_seconds
+                        else estimate_duration_minutes(distance_km, mode)
+                    )
                     summary_name = ""
                     if route.get("legs"):
                         summary_name = route["legs"][0].get("summary", "")

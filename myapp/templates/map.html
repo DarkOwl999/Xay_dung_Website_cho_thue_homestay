@@ -332,6 +332,14 @@
     return `${Number(distanceKm).toFixed(1).replace(".0", "")} km`;
   }
 
+  function getRouteOrigin() {
+    return pinnedSearchLocation || userLocation || null;
+  }
+
+  function getRouteOriginLabel() {
+    return pinnedSearchLocation ? "điểm ghim" : "vị trí hiện tại của bạn";
+  }
+
   function getDefaultNearbyNote() {
     if (pinnedSearchLocation) {
       return "Đã ghim một điểm trên bản đồ. Chọn bán kính rồi nhấn tìm để xem căn hộ quanh điểm này.";
@@ -891,15 +899,27 @@
     document.getElementById("listing-panel").style.display = "none";
     document.getElementById("direction-panel").style.display = "flex";
     document.getElementById("dest-title").innerText = name;
-    document.getElementById("route-summary-note").textContent = `Đang chuẩn bị tuyến đường đến ${name}.`;
-    setMapHelperText(`Đang xem chỉ đường đến ${name}.`);
-    if (userLocation) {
-      callPythonAPI();
+    const routeOrigin = getRouteOrigin();
+    if (!routeOrigin) {
+      document.getElementById("route-summary-note").textContent =
+        "Hãy cho phép lấy vị trí hiện tại hoặc ghim một điểm để tính đường đi.";
+      document.getElementById("error-box").innerText =
+        "Chưa có điểm bắt đầu. Hãy bật vị trí hiện tại hoặc ghim một điểm trên bản đồ.";
+      document.getElementById("error-box").style.display = "block";
+      setMapHelperText("Hãy bật vị trí hoặc ghim một điểm để tính đường đi đến căn hộ.");
+      return;
     }
+
+    document.getElementById("error-box").style.display = "none";
+    document.getElementById("route-summary-note").textContent =
+      `Đang chuẩn bị tuyến đường từ ${getRouteOriginLabel()} đến ${name}.`;
+    setMapHelperText(`Đang xem chỉ đường từ ${getRouteOriginLabel()} đến ${name}.`);
+    callPythonAPI();
   }
 
   function callPythonAPI() {
-    if (!userLocation || !currentDest) {
+    const routeOrigin = getRouteOrigin();
+    if (!routeOrigin || !currentDest) {
       return;
     }
 
@@ -908,7 +928,7 @@
     document.getElementById("error-box").style.display = "none";
     clearRouteOverlays();
 
-    const url = `/api/route/?start_lat=${userLocation.lat}&start_lng=${userLocation.lng}&end_lat=${currentDest.lat}&end_lng=${currentDest.lng}&mode=${currentMode}`;
+    const url = `/api/route/?start_lat=${routeOrigin.lat}&start_lng=${routeOrigin.lng}&end_lat=${currentDest.lat}&end_lng=${currentDest.lng}&mode=${currentMode}`;
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
@@ -933,7 +953,7 @@
           if (isMain) {
             drawLabelAndInfo(route);
             document.getElementById("route-summary-note").textContent =
-              `${route.summary} • ${route.distance_km} km • ${formatDuration(route.duration_min)}`;
+              `Từ ${getRouteOriginLabel()} • ${route.summary} • ${route.distance_km} km • ${formatDuration(route.duration_min)}`;
           }
 
           const isActive = isMain ? "active" : "";
@@ -1001,7 +1021,7 @@
     drawLabelAndInfo(routesData[selectedIndex]);
 
     document.getElementById("route-summary-note").textContent =
-      `${routesData[selectedIndex].summary} • ${routesData[selectedIndex].distance_km} km • ${formatDuration(routesData[selectedIndex].duration_min)}`;
+      `Từ ${getRouteOriginLabel()} • ${routesData[selectedIndex].summary} • ${routesData[selectedIndex].distance_km} km • ${formatDuration(routesData[selectedIndex].duration_min)}`;
 
     document.querySelectorAll("#routes-list a").forEach((item, index) => {
       item.classList.toggle("active", index === selectedIndex);
