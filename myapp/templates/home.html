@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Trang chủ - Căn hộ nghỉ dưỡng{% endblock %}
+{% block title %}Trang chủ - Stage 01{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
 <link rel="stylesheet" href="{% static 'css/home.css' %}?v=20260407-inline-css-split" />
@@ -13,26 +13,21 @@
             <div class="swiper-slide"><img src="/media/Home_page_pics/VSC-2.jpg" alt="VSC-2" loading="lazy"></div>
             <div class="swiper-slide"><img src="/media/Home_page_pics/VCO-1.jpg" alt="VCO-1" loading="lazy"></div>
             <div class="swiper-slide"><img src="/media/Home_page_pics/VGP-1.jpg" alt="VGP-1" loading="lazy"></div>
-            <div class="swiper-slide"><img src="/media/Home_page_pics/VGP-2.jpg" alt="VGP-2" loading="lazy"></div>
-            <div class="swiper-slide"><img src="/media/Home_page_pics/VSC-1.jpg" alt="VSC-1" loading="lazy"></div>
         </div>
         <div class="swiper-pagination"></div>
     </div>
-
     <div class="hero-overlay"></div>
-    
     <div class="container hero-content text-white">
-        <h1 class="display-4 font-weight-bold mb-3 home-hero-title">Thuê Căn Hộ Nghỉ Dưỡng Lý Tưởng</h1>
-        <p class="lead mb-5 home-hero-lead">Khám phá nhanh các căn hộ nghỉ dưỡng cao cấp với Bản đồ GIS và công cụ chỉ đường tích hợp.</p>
-        
+        <h1 class="display-4 font-weight-bold mb-3 home-hero-title">Nền tảng căn hộ và bản đồ GIS</h1>
+        <p class="lead mb-5 home-hero-lead">Bản đầu tiên tập trung vào danh sách căn hộ, bản đồ chỉ đường, khoảng cách di chuyển và quản trị căn hộ cơ bản.</p>
         <form action="{% url 'map_view' %}" method="GET" class="hero-search-box mx-auto">
             <div class="input-group">
                 <div class="input-group-prepend">
                     <span class="input-group-text bg-transparent border-0 text-muted"><i class="fas fa-search"></i></span>
                 </div>
-                <input type="text" name="q" class="form-control text-dark" placeholder="Nhập khu vực, điểm đến nghỉ dưỡng hoặc tuyến đường bạn muốn đến...">
+                <input type="text" name="q" class="form-control text-dark" placeholder="Nhập khu vực để mở nhanh trên bản đồ...">
                 <div class="input-group-append">
-                    <button class="btn btn-search text-white" type="submit">Xem căn hộ</button>
+                    <button class="btn btn-search text-white" type="submit">Mở bản đồ</button>
                 </div>
             </div>
         </form>
@@ -42,62 +37,35 @@
 <div class="container my-5 pt-4" id="apartment-list">
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
-            <h2 class="font-weight-bold text-dark mb-0">Căn Hộ Nghỉ Dưỡng Nổi Bật</h2>
-            <p class="text-muted mb-0">Những căn hộ nghỉ dưỡng mới nhất đang có sẵn trên hệ thống</p>
+            <h2 class="font-weight-bold text-dark mb-0">Danh sách căn hộ giai đoạn đầu</h2>
+            <p class="text-muted mb-0">Tập trung hiển thị căn hộ và dẫn người dùng sang bản đồ để xem đường đi.</p>
         </div>
-        <a href="{% url 'map_view' %}" class="btn btn-outline-primary btn-modern">Xem tất cả căn hộ trên bản đồ <i class="fas fa-arrow-right ml-1"></i></a>
+        <a href="{% url 'map_view' %}" class="btn btn-outline-primary btn-modern">Xem tất cả trên bản đồ <i class="fas fa-arrow-right ml-1"></i></a>
     </div>
 
     <div class="row">
         {% for apt in latest_apartments %}
         <div class="col-lg-4 col-md-6 mb-4 d-flex">
-    <div class="modern-card w-100">
-        <div class="position-relative apt-carousel-container">
-            <div id="carousel-apt-{{ apt.id }}" class="carousel slide" data-ride="carousel" data-interval="false">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="{{ apt.cover_image_url }}" class="img-apt-cover" alt="{{ apt.name }}">
-                    </div>
-                    {% for img in apt.gallery_images.all %}
-                    <div class="carousel-item">
-                        <img src="{{ img.image.url }}" class="img-apt-cover" alt="{{ img.title|default:apt.name }}">
-                    </div>
-                    {% endfor %}
+            <div class="modern-card w-100">
+                <div class="position-relative apt-carousel-container">
+                    <img src="{{ apt.cover_image_url }}" class="img-apt-cover" alt="{{ apt.name }}">
+                    <span class="badge badge-success position-absolute home-card-badge">Stage 01</span>
                 </div>
-                
-                {% if apt.gallery_images.all %}
-                <a class="carousel-control-prev" href="#carousel-apt-{{ apt.id }}" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Trước</span>
-                </a>
-                <a class="carousel-control-next" href="#carousel-apt-{{ apt.id }}" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Sau</span>
-                </a>
-                {% endif %}
-            </div>
-
-            <span class="badge badge-success position-absolute home-card-badge">Thuê nguyên căn</span>
-            
-            </div>
-        <div class="modern-card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <h5 class="font-weight-bold text-dark pr-2 mb-0 apartment-card-title" title="{{ apt.name }}">{{ apt.name }}</h5>
-            </div>
-            <p class="small text-muted mb-3 apartment-card-address"><i class="fas fa-map-marker-alt text-danger mr-1"></i> {{ apt.address|truncatechars:65 }}</p>
-            <p class="price-tag mb-4">{{ apt.price }}₫ <span class="text-muted font-weight-normal home-price-unit">/đêm</span></p>
-
-            <div class="pt-3 apartment-card-actions">
-                <a href="{% url 'apartment_detail' apt.id %}" class="btn btn-primary btn-modern btn-block shadow-sm mb-2">
-                    <i class="fas fa-eye mr-2"></i> Xem trang chi tiết căn hộ
-                </a>
-                <a href="{% url 'map_view' %}?target_id={{ apt.id }}" class="btn btn-light btn-modern btn-block text-primary font-weight-bold home-route-btn">
-                    <i class="fas fa-location-arrow mr-2"></i> Chỉ đường trên bản đồ
-                </a>
+                <div class="modern-card-body">
+                    <h5 class="font-weight-bold text-dark pr-2 mb-2 apartment-card-title" title="{{ apt.name }}">{{ apt.name }}</h5>
+                    <p class="small text-muted mb-3 apartment-card-address"><i class="fas fa-map-marker-alt text-danger mr-1"></i> {{ apt.address|truncatechars:65 }}</p>
+                    <p class="price-tag mb-4">{{ apt.price }}₫ <span class="text-muted font-weight-normal home-price-unit">/đêm</span></p>
+                    <div class="pt-3 apartment-card-actions">
+                        <a href="{% url 'map_view' %}?target_id={{ apt.id }}" class="btn btn-primary btn-modern btn-block shadow-sm mb-2">
+                            <i class="fas fa-directions mr-2"></i> Chỉ đường đến căn hộ
+                        </a>
+                        <a href="{% url 'custom_admin' %}" class="btn btn-light btn-modern btn-block text-primary font-weight-bold home-route-btn">
+                            <i class="fas fa-cog mr-2"></i> Xem phần quản trị
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
         {% empty %}
         <div class="col-12 text-center py-5">
             <img src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" width="120" class="opacity-50 mb-3">
@@ -106,84 +74,33 @@
         {% endfor %}
     </div>
 
-    {% if apartment_page.has_other_pages %}
-    <nav aria-label="Phân trang căn hộ" class="mt-3 mb-5">
-        <ul class="pagination justify-content-center flex-wrap">
-            {% if apartment_page.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ apartment_page.previous_page_number }}#apartment-list" aria-label="Trang trước">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            {% else %}
-            <li class="page-item disabled">
-                <span class="page-link" aria-hidden="true">&laquo;</span>
-            </li>
-            {% endif %}
-
-            {% for num in apartment_page.paginator.page_range %}
-                {% if num == apartment_page.number %}
-                <li class="page-item active" aria-current="page">
-                    <span class="page-link">{{ num }}</span>
-                </li>
-                {% elif num >= apartment_page.number|add:'-2' and num <= apartment_page.number|add:'2' %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ num }}#apartment-list">{{ num }}</a>
-                </li>
-                {% endif %}
-            {% endfor %}
-
-            {% if apartment_page.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ apartment_page.next_page_number }}#apartment-list" aria-label="Trang sau">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-            {% else %}
-            <li class="page-item disabled">
-                <span class="page-link" aria-hidden="true">&raquo;</span>
-            </li>
-            {% endif %}
-        </ul>
-        <p class="text-center text-muted small mb-0">Hiển thị tối đa 6 căn hộ mỗi trang.</p>
-    </nav>
-    {% endif %}
-
     <div class="mt-5 pt-5 border-top">
         <div class="text-center mb-5">
-            <span class="font-weight-bold text-uppercase text-primary home-feature-kicker">Tính năng cốt lõi</span>
-            <h2 class="font-weight-bold text-dark mt-2 mb-3">Công Nghệ Tích Hợp</h2>
-            <p class="text-muted mx-auto home-feature-copy">Hệ thống ứng dụng các công nghệ bản đồ và thuật toán không gian tiên tiến nhất, mang lại trải nghiệm tối ưu cho người dùng.</p>
+            <span class="font-weight-bold text-uppercase text-primary home-feature-kicker">Lộ trình phát triển</span>
+            <h2 class="font-weight-bold text-dark mt-2 mb-3">Các phần được xây trước</h2>
+            <p class="text-muted mx-auto home-feature-copy">Stage đầu tiên ưu tiên những gì người dùng nhìn thấy ngay và những gì nhóm cần để nhập dữ liệu, kiểm tra vị trí và demo bản đồ.</p>
         </div>
 
         <div class="row text-center pb-5">
             <div class="col-md-4 mb-4">
                 <div class="modern-feature-card h-100">
-                    <div class="icon-wrapper bg-primary-light text-primary mx-auto mb-4">
-                        <i class="fas fa-draw-polygon fa-2x"></i>
-                    </div>
-                    <h5 class="font-weight-bold text-dark mb-3">Spatial Analysis</h5>
-                    <p class="text-muted small mb-0">Sử dụng thuật toán GIS và Geocoding từ OpenStreetMap để phân tích không gian, lọc dữ liệu chính xác theo ranh giới khu vực (Bounding Box).</p>
+                    <div class="icon-wrapper bg-primary-light text-primary mx-auto mb-4"><i class="fas fa-home fa-2x"></i></div>
+                    <h5 class="font-weight-bold text-dark mb-3">Trang chủ có danh sách căn hộ</h5>
+                    <p class="text-muted small mb-0">Giúp trình bày sản phẩm trước khi đi sâu vào đặt phòng hay tài khoản.</p>
                 </div>
             </div>
-            
             <div class="col-md-4 mb-4">
                 <div class="modern-feature-card h-100">
-                    <div class="icon-wrapper bg-success-light text-success mx-auto mb-4">
-                        <i class="fas fa-route fa-2x"></i>
-                    </div>
-                    <h5 class="font-weight-bold text-dark mb-3">Smart Routing</h5>
-                    <p class="text-muted small mb-0">Tích hợp API OSRM tìm kiếm tuyến đường ngắn nhất theo thời gian thực (Ô tô, Xe máy, Đi bộ) với thuật toán Dijkstra/A*.</p>
+                    <div class="icon-wrapper bg-success-light text-success mx-auto mb-4"><i class="fas fa-route fa-2x"></i></div>
+                    <h5 class="font-weight-bold text-dark mb-3">Bản đồ, chỉ đường, thời gian</h5>
+                    <p class="text-muted small mb-0">Tập trung vào giá trị GIS cốt lõi: xem vị trí căn hộ và tính lộ trình di chuyển.</p>
                 </div>
             </div>
-            
             <div class="col-md-4 mb-4">
                 <div class="modern-feature-card h-100">
-                    <div class="icon-wrapper bg-danger-light text-danger mx-auto mb-4">
-                        <i class="fas fa-map-marked-alt fa-2x"></i>
-                    </div>
-                    <h5 class="font-weight-bold text-dark mb-3">Interactive WebMap</h5>
-                    <p class="text-muted small mb-0">Quản lý và cập nhật tọa độ không gian trực quan thông qua thao tác Click-to-Map với thư viện LeafletJS.</p>
+                    <div class="icon-wrapper bg-danger-light text-danger mx-auto mb-4"><i class="fas fa-user-shield fa-2x"></i></div>
+                    <h5 class="font-weight-bold text-dark mb-3">Admin quản lý căn hộ</h5>
+                    <p class="text-muted small mb-0">Cho phép nhập, sửa, xóa căn hộ để dữ liệu web và bản đồ luôn có thể cập nhật.</p>
                 </div>
             </div>
         </div>
@@ -196,18 +113,10 @@
         new Swiper(".heroSwiper", {
             effect: "fade",
             fadeEffect: { crossFade: true },
-            autoplay: {
-                delay: 10000, /* Thời gian chờ 10 giây */
-                disableOnInteraction: false,
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                type: "progressbar",
-            },
+            autoplay: { delay: 10000, disableOnInteraction: false },
+            pagination: { el: ".swiper-pagination", type: "progressbar" },
             loop: true
         });
     });
 </script>
-
-
 {% endblock %}

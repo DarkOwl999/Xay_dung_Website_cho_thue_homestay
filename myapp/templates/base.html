@@ -5,224 +5,80 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}CanHo24h{% endblock %}</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20260407-map-popup-compact" />
     <link rel="stylesheet" href="{% static 'css/base-layout.css' %}?v=20260413-flash-message-modal" />
     {% block extra_css %}{% endblock %}
-  </head>
-  <body class="{% block body_class %}{% endblock %}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar fixed-top transition-all {% if request.resolver_match.url_name != 'home' %}scrolled{% endif %}" id="mainNav">
-      <div class="container-fluid px-4 px-lg-5">
-          <a class="navbar-brand" href="{% url 'home' %}">
-            <img src="/media/apartments/logoweb.png" alt="Căn Hộ 24h Logo" class="brand-logo">
-          </a>
-          
-          <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Mo menu dieu huong">
-            <span class="navbar-toggler-icon navbar-toggler-icon-light"></span>
-          </button>
-          
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto main-menu">
-              <li class="nav-item px-2">
-                  <a class="nav-link" href="{% url 'home' %}">Trang chủ</a>
-              </li>
-              <li class="nav-item dropdown px-2">
-                  <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Thuê</a>
-                  <div class="dropdown-menu border-0 shadow-sm">
-                      <a class="dropdown-item" href="#">Thuê căn hộ</a>
-                  </div>
-              </li>
-              <li class="nav-item px-2"><a class="nav-link" href="{% url 'intro_page' %}">Giới thiệu</a></li>
-              <li class="nav-item px-2"><a class="nav-link" href="{% url 'map_view' %}">Bản đồ GIS</a></li>
-            </ul>
-
-            <ul class="navbar-nav align-items-center action-menu">
-              
-              <li class="nav-item dropdown mr-3">
-                  <a class="nav-link dropdown-toggle language-selector" href="#" data-toggle="dropdown">
-                      VI
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-right border-0 shadow-sm language-dropdown language-dropdown-compact">
-                      <a class="dropdown-item active" href="#">Tiếng Việt</a>
-                      <a class="dropdown-item" href="#">English</a>
-                  </div>
-              </li>
-
-              {% if user.is_authenticated %}
-                  <li class="nav-item dropdown mr-3">
-                      <a class="nav-link dropdown-toggle user-profile-link" href="#" data-toggle="dropdown">
-                          <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=d4af37&color=fff&rounded=true" width="32" class="mr-2 rounded-circle"> 
-                          <span class="d-none d-lg-inline">{{ user.username }}</span>
-                      </a>
-                      <div class="dropdown-menu dropdown-menu-right border-0 shadow-sm user-dropdown">
-                          <a class="dropdown-item py-2" href="{% url 'booking_history' %}"><i class="fas fa-list-alt mr-2 text-muted"></i> Lịch sử mua/thuê</a>
-                          <a class="dropdown-item py-2" href="{% url 'password_change_request' %}"><i class="fas fa-key mr-2 text-muted"></i> Đổi mật khẩu</a>
-                          {% if user.is_staff %}
-                              <div class="dropdown-divider"></div>
-                              <a class="dropdown-item py-2" href="{% url 'custom_admin' %}"><i class="fas fa-shield-alt mr-2 text-primary"></i> Quản trị viên</a>
-                          {% endif %}
-                          <div class="dropdown-divider"></div>
-                          <form method="POST" action="{% url 'logout' %}" class="m-0 p-0">
-                              {% csrf_token %}
-                              <button type="submit" class="dropdown-item py-2 text-danger"><i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất</button>
-                          </form>
-                      </div>
-                  </li>
-              {% else %}
-                  <li class="nav-item mr-2">
-                      <a class="nav-link btn-auth-text" href="{% url 'login' %}">Đăng nhập</a>
-                  </li>
-                  <li class="nav-item mr-3">
-                      <a class="nav-link btn-auth-text" href="{% url 'register' %}">Đăng ký</a>
-                  </li>
-              {% endif %}
-              
-            </ul>
-          </div>
-      </div>
+        <div class="container-fluid px-4 px-lg-5">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="/media/apartments/logoweb.png" alt="CanHo24h Logo" class="brand-logo">
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Mở menu điều hướng">
+                <span class="navbar-toggler-icon navbar-toggler-icon-light"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto main-menu">
+                    <li class="nav-item px-2"><a class="nav-link" href="{% url 'home' %}">Trang chủ</a></li>
+                    <li class="nav-item px-2"><a class="nav-link" href="{% url 'map_view' %}">Bản đồ GIS</a></li>
+                    <li class="nav-item px-2"><a class="nav-link" href="{% url 'custom_admin' %}">Quản trị</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="badge badge-light px-3 py-2">Stage 01</span>
+                </div>
+            </div>
+        </div>
     </nav>
 
     {% if messages %}
     <div class="flash-message-stack" aria-live="polite" aria-atomic="true">
         {% for message in messages %}
-          <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show border-0 flash-message-card flash-message-card--{{ message.tags|default:'info' }} {% if 'error' in message.tags or 'danger' in message.tags or 'warning' in message.tags %}flash-message-card--modal{% endif %}" role="alert">
-            {% if 'error' in message.tags or 'danger' in message.tags or 'warning' in message.tags %}
-              <button type="button" class="flash-message-backdrop" data-dismiss="alert" aria-label="Đóng thông báo"></button>
-            {% endif %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show border-0 flash-message-card flash-message-card--{{ message.tags|default:'info' }}" role="alert">
             <div class="flash-message-panel">
-              <div class="flash-message-icon">
-                {% if 'success' in message.tags %}
-                  <i class="fas fa-check-circle"></i>
-                {% elif 'error' in message.tags or 'danger' in message.tags %}
-                  <i class="fas fa-exclamation-triangle"></i>
-                {% elif 'warning' in message.tags %}
-                  <i class="fas fa-exclamation-circle"></i>
-                {% else %}
-                  <i class="fas fa-info-circle"></i>
-                {% endif %}
-              </div>
-              <div class="flash-message-content">
-                <div class="flash-message-title">
-                  {% if 'success' in message.tags %}
-                    Thao tác thành công
-                  {% elif 'error' in message.tags or 'danger' in message.tags %}
-                    Cần kiểm tra lại
-                  {% elif 'warning' in message.tags %}
-                    Lưu ý quan trọng
-                  {% else %}
-                    Thông báo
-                  {% endif %}
+                <div class="flash-message-icon"><i class="fas fa-info-circle"></i></div>
+                <div class="flash-message-content">
+                    <div class="flash-message-title">Thông báo</div>
+                    <div class="flash-message-text">{{ message }}</div>
                 </div>
-                <div class="flash-message-text">{{ message }}</div>
-              </div>
-              <button type="button" class="close flash-message-close" data-dismiss="alert" aria-label="Đóng thông báo">
-                <span aria-hidden="true">&times;</span>
-              </button>
-              {% if 'error' in message.tags or 'danger' in message.tags or 'warning' in message.tags %}
-                <div class="flash-message-actions">
-                  <button type="button" class="btn flash-message-primary-btn" data-dismiss="alert">
-                    Đã hiểu, quay lại kiểm tra
-                  </button>
-                </div>
-              {% endif %}
+                <button type="button" class="close flash-message-close" data-dismiss="alert" aria-label="Đóng thông báo">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-          </div>
+        </div>
         {% endfor %}
     </div>
     {% endif %}
 
     {% block content_wrapper %}
-        <div class="container content-shell">
-            {% block content %}{% endblock %}
-        </div>
+    <div class="container content-shell">
+        {% block content %}{% endblock %}
+    </div>
     {% endblock %}
 
     <footer class="custom-footer pt-5 pb-4 mt-5">
         <div class="container">
             <div class="row text-md-left">
-                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 font-weight-bold text-accent">
-                        <i class="fas fa-building mr-2"></i>CanHo24h
-                    </h5>
-                    <p><i class="fas fa-home mr-3 text-muted"></i> 123 Đường Lê Văn Sỹ, Quận Tân Bình, TP.HCM</p>
-                    <p><i class="fas fa-envelope mr-3 text-muted"></i> contact@myhomegis.vn</p>
-                    <p><i class="fas fa-phone mr-3 text-muted"></i> +84 987 654 321</p>
-                    <div class="mt-4 social-icons">
-                        <a href="#" class="btn btn-outline-light btn-floating m-1 rounded-circle"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-floating m-1 rounded-circle"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-floating m-1 rounded-circle"><i class="fab fa-instagram"></i></a>
-                    </div>
+                <div class="col-md-4 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 font-weight-bold text-accent"><i class="fas fa-building mr-2"></i>CanHo24h</h5>
+                    <p>Stage 01 tập trung vào trang chủ, bản đồ chỉ đường và khu quản trị căn hộ cơ bản.</p>
                 </div>
-
-                <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3 footer-links">
-                    <h5 class="text-uppercase mb-4 font-weight-bold text-white">Khám phá</h5>
+                <div class="col-md-3 mx-auto mt-3 footer-links">
+                    <h5 class="text-uppercase mb-4 font-weight-bold text-white">Đi nhanh</h5>
                     <p><a href="{% url 'home' %}">Trang chủ</a></p>
                     <p><a href="{% url 'map_view' %}">Bản đồ GIS</a></p>
-                    <p><a href="{% url 'intro_page' %}">Giới thiệu CanHo24h</a></p>
-                    <p><a href="{% url 'booking_history' %}">Lịch sử đặt phòng</a></p>
+                    <p><a href="{% url 'custom_admin' %}">Quản trị</a></p>
                 </div>
-
-                <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3 footer-links">
-                    <h5 class="text-uppercase mb-4 font-weight-bold text-white">Hỗ trợ</h5>
-                    <p><a href="#">Câu hỏi thường gặp</a></p>
-                    <p><a href="#">Chính sách bảo mật</a></p>
-                    <p><a href="#">Điều khoản sử dụng</a></p>
-                    <p><a href="#">Liên hệ CSKH</a></p>
-                </div>
-
-                <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 font-weight-bold text-white">Nhận Ưu Đãi Mới</h5>
-                    <p class="text-muted footer-newsletter-copy">Đăng ký email để nhận những căn hộ nghỉ dưỡng nổi bật và ưu đãi đặt thuê mới nhất từ hệ thống.</p>
-                    <div class="input-group mb-3 newsletter-group">
-                        <input type="email" class="form-control rounded-pill-left" placeholder="Email của bạn...">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary rounded-pill-right px-3" type="button"><i class="fas fa-paper-plane"></i></button>
-                        </div>
-                    </div>
+                <div class="col-md-4 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 font-weight-bold text-white">Mục tiêu stage</h5>
+                    <p class="text-muted footer-newsletter-copy">Xây nền cho website thuê căn hộ bằng danh sách căn hộ, bản đồ GIS, chỉ đường, và bảng quản trị quản lý dữ liệu cơ bản.</p>
                 </div>
             </div>
-
-            <hr class="mb-4 mt-4 footer-divider">
-
-            <div class="row align-items-center pb-3">
-                <div class="col-md-4 text-center text-md-left mb-3 mb-md-0">
-                    <p class="mb-0 text-muted footer-copyright">
-                        © 2026 Copyright <strong class="text-accent">CanHo24h</strong>. All rights reserved.
-                    </p>
-                </div>
-                
-            <div class="col-md-4 text-center mb-3 mb-md-0">
-                <div class="payment-icons text-muted">
-                    <i class="fab fa-cc-visa fa-2x mx-1 hover-gold" title="Visa"></i>
-                    <i class="fab fa-cc-mastercard fa-2x mx-1 hover-gold" title="MasterCard"></i>
-                    <i class="fab fa-cc-jcb fa-2x mx-1 hover-gold" title="JCB"></i>
-                    <i class="fab fa-cc-amex fa-2x mx-1 hover-gold" title="American Express"></i>
-                    <i class="fab fa-cc-paypal fa-2x mx-1 hover-gold" title="PayPal"></i>
-                </div>
-            </div>
-        </div>
-        <div class="floating-contact">
-            <a href="tel:sodienthoai" class="contact-bubble phone-bubble" title="Gọi điện cho CanHo24h">
-                <img src="/media/apartments/phone.png" alt="Phone">
-            </a>
-            <a href="https://zalo.me/sodienthoai" class="contact-bubble zalo-bubble" title="Chat Zalo với CanHo24h" target="_blank">
-                <img src="/media/apartments/zalo.png" alt="Zalo">
-            </a>
         </div>
     </footer>
-    <div class="floating-contact-group">
-        <a href="tel:+84987654321" class="float-btn phone-btn" title="Goi dien cho CanHo24h">
-            <span class="pulse-ring"></span>
-            <i class="fas fa-phone-alt" aria-hidden="true"></i>
-        </a>
-        <a href="https://zalo.me/84987654321" class="float-btn zalo-btn" title="Chat Zalo voi CanHo24h" target="_blank" rel="noopener noreferrer">
-            <img src="/media/apartments/zalo.png" alt="Zalo">
-        </a>
-    </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -230,35 +86,19 @@
     <script>
         $(document).ready(function() {
             var navbar = $("#mainNav");
-            var currentPath = window.location.pathname;
-            var isHomePage = (currentPath === '/' || currentPath === '/home/');
-            var body = $("body");
-
-            function syncFlashModalState() {
-                body.toggleClass("has-flash-message-modal", $(".flash-message-card--modal").length > 0);
-            }
-
+            var isHomePage = (window.location.pathname === "/" || window.location.pathname === "/home/");
             function checkNavbarState() {
                 if (!isHomePage || $(window).scrollTop() > 50) {
                     navbar.addClass("scrolled");
-                    // Vì nền Xanh Navy nên giữ nguyên icon màu trắng
-                    $(".navbar-toggler-icon").css("filter", "invert(1)"); 
+                    $(".navbar-toggler-icon").css("filter", "invert(1)");
                 } else {
                     navbar.removeClass("scrolled");
                     $(".navbar-toggler-icon").css("filter", "invert(1)");
                 }
             }
             checkNavbarState();
-            syncFlashModalState();
-
-            $(document).on("closed.bs.alert", ".flash-message-card", function() {
-                syncFlashModalState();
-            });
-
-            $(window).scroll(function() {
-                checkNavbarState();
-            });
+            $(window).scroll(function() { checkNavbarState(); });
         });
     </script>
-  </body>
+</body>
 </html>
