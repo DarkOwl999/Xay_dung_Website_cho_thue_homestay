@@ -1,0 +1,80 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Quản lý tài khoản{% endblock %}
+{% block admin_section %}Tài khoản{% endblock %}
+{% block admin_page_title %}Quản lý tài khoản{% endblock %}
+{% block admin_page_description %}Trang riêng cho danh sách người dùng, phân quyền admin và theo dõi trạng thái tài khoản đang hoạt động trong hệ thống.{% endblock %}
+
+{% block admin_page_actions %}
+<a href="{% url 'user_create' %}" class="admin-primary-btn">
+    <i class="fas fa-user-plus"></i> Tạo tài khoản
+</a>
+{% endblock %}
+
+{% block admin_body %}
+<section class="admin-panel mt-4">
+    <div class="admin-panel-head">
+        <div>
+            <h3>Danh sách tài khoản</h3>
+            <p>Tổng số {{ users|length }} tài khoản đang có.</p>
+        </div>
+    </div>
+
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                    <th>Ngày tham gia</th>
+                    <th>Trạng thái</th>
+                    <th>Phân quyền</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>#{{ u.id }}</td>
+                    <td class="admin-table-title">{{ u.username }}</td>
+                    <td>{{ u.email|default:'-' }}</td>
+                    <td>{{ u.date_joined|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if u.is_active %}
+                            <span class="admin-status success">Đang hoạt động</span>
+                        {% else %}
+                            <span class="admin-status danger">Bị khóa</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if u.is_staff or u.is_superuser %}
+                            <span class="admin-status info">Admin</span>
+                        {% else %}
+                            <span class="admin-status muted">Khách</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="admin-inline-actions">
+                            <a href="{% url 'user_update' u.id %}" class="admin-primary-btn admin-btn-sm">
+                                <i class="fas fa-user-cog"></i> Sửa
+                            </a>
+                            <form action="{% url 'user_delete' u.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="admin-danger-btn admin-btn-sm" onclick="return confirm('Bạn chắc chắn muốn xóa tài khoản {{ u.username }}?');">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="admin-empty">Chưa có dữ liệu tài khoản.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

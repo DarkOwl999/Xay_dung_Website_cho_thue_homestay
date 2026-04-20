@@ -1,0 +1,1086 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Bản đồ căn hộ TP.HCM{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<link rel="stylesheet" href="{% static 'css/map-page.css' %}?v=20260412-map-pin-radius" />
+{% endblock %}
+{% block content_wrapper %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
+<div id="mapPageShell" class="map-page-shell">
+  <aside class="map-sidebar">
+    <div class="map-sidebar-inner">
+      <div class="map-hero-panel">
+        <span class="map-hero-kicker">Bản đồ GIS căn hộ</span>
+        <h1>Khám phá căn hộ nghỉ dưỡng quanh bạn</h1>
+        <p>
+          Tìm theo khu vực, lọc nhanh theo bán kính, rồi xem chỉ đường ngay trên cùng một màn hình.
+        </p>
+
+        <div id="status-msg" class="map-status-pill is-loading">
+          <i class="fas fa-spinner fa-spin"></i> Đang tìm vị trí của bạn...
+        </div>
+
+        <div class="map-hero-actions">
+          <button type="button" class="map-hero-btn" onclick="showAllApartments()">
+            <i class="fas fa-th-large"></i> Tất cả căn hộ
+          </button>
+          <button type="button" class="map-hero-btn map-hero-btn--ghost" onclick="centerOnUser()">
+            <i class="fas fa-location-arrow"></i> Về vị trí tôi
+          </button>
+        </div>
+      </div>
+
+      <div class="map-sidebar-scroll">
+        <div class="map-sidebar-sections">
+          <section class="map-panel-card">
+            <div class="map-panel-head">
+              <div>
+                <span class="map-panel-kicker">Tìm theo khu vực</span>
+                <h3>Tìm quận, phường hoặc tên đường</h3>
+              </div>
+            </div>
+
+            <div class="map-search-input">
+              <span class="map-search-icon"><i class="fas fa-search"></i></span>
+              <input
+                type="text"
+                id="regionSearch"
+                class="map-search-field"
+                placeholder="Ví dụ: Quận 4, Bình Thạnh, Bến Vân Đồn..."
+                oninput="scheduleRegionFilter()"
+              />
+              <button type="button" class="map-clear-btn" onclick="clearRegionSearch()">Xóa</button>
+            </div>
+            <p class="map-panel-note">
+              Hệ thống sẽ lọc nhanh theo khu vực bạn nhập và tự đưa map về vùng phù hợp.
+            </p>
+          </section>
+
+          <section class="map-panel-card">
+            <div class="map-panel-head">
+              <div>
+                <span class="map-panel-kicker">Tìm quanh vị trí hiện tại</span>
+                <h3>Lọc theo bán kính hoặc thời gian di chuyển</h3>
+              </div>
+              <button type="button" class="map-chip-btn map-chip-btn--soft" onclick="resetNearbySearch()">
+                Xóa lọc
+              </button>
+            </div>
+
+            <div class="map-toggle-group">
+              <button
+                type="button"
+                id="criteria-distance-btn"
+                class="map-chip-btn active"
+                onclick="setNearbyCriteria('distance')"
+              >
+                Khoảng cách
+              </button>
+              <button
+                type="button"
+                id="criteria-time-btn"
+                class="map-chip-btn"
+                onclick="setNearbyCriteria('time')"
+              >
+                Thời gian
+              </button>
+            </div>
+
+            <div id="nearby-distance-box" class="map-filter-box">
+              <label class="map-filter-label" for="nearbyDistanceRange">Bán kính tìm kiếm</label>
+              <input
+                type="range"
+                id="nearbyDistanceRange"
+                class="map-range-slider"
+                min="5"
+                max="30"
+                step="5"
+                value="10"
+                oninput="updateNearbyValueLabels()"
+              />
+              <div class="map-range-meta">
+                <span>5 km</span>
+                <strong id="distanceValueLabel">10 km</strong>
+                <span>30 km</span>
+              </div>
+            </div>
+
+            <div id="nearby-time-box" class="map-filter-box map-filter-box-hidden">
+              <label class="map-filter-label" for="nearbyTimeRange">Thời gian di chuyển ước tính</label>
+              <input
+                type="range"
+                id="nearbyTimeRange"
+                class="map-range-slider"
+                min="5"
+                max="30"
+                step="5"
+                value="10"
+                oninput="updateNearbyValueLabels()"
+              />
+              <div class="map-range-meta">
+                <span>5 phút</span>
+                <strong id="timeValueLabel">10 phút</strong>
+                <span>30 phút</span>
+              </div>
+
+              <div class="nearby-mode-options">
+                <button
+                  type="button"
+                  class="nearby-mode-btn active"
+                  onclick="setNearbyTravelMode('driving', this)"
+                >
+                  Ô tô
+                </button>
+                <button
+                  type="button"
+                  class="nearby-mode-btn"
+                  onclick="setNearbyTravelMode('cycling', this)"
+                >
+                  Xe máy
+                </button>
+                <button
+                  type="button"
+                  class="nearby-mode-btn"
+                  onclick="setNearbyTravelMode('walking', this)"
+                >
+                  Đi bộ
+                </button>
+              </div>
+            </div>
+
+            <div class="map-nearby-center-card">
+              <div>
+                <label class="map-filter-label">Tâm tìm kiếm hiện tại</label>
+                <strong id="nearbyCenterLabel" class="map-nearby-center-label">Vị trí hiện tại của bạn</strong>
+                <p id="nearbyCenterHint" class="map-panel-note map-panel-note--compact">
+                  Bạn có thể bấm trực tiếp lên bản đồ để ghim một điểm khác rồi tìm quanh điểm đó.
+                </p>
+              </div>
+              <button
+                type="button"
+                id="clearPinnedCenterBtn"
+                class="map-chip-btn map-chip-btn--soft map-chip-btn--danger"
+                onclick="clearPinnedSearchPoint()"
+                disabled
+              >
+                Bỏ ghim
+              </button>
+            </div>
+
+            <button type="button" id="nearbySearchButton" class="map-primary-btn" onclick="searchNearbyApartments()">
+              <i class="fas fa-location-arrow"></i> Tìm quanh vị trí hiện tại
+            </button>
+
+            <p id="nearby-summary" class="map-panel-note map-panel-note--status">
+              Chọn phạm vi từ 5 đến 30 km hoặc 5 đến 30 phút để xem căn hộ gần vị trí hiện tại.
+            </p>
+          </section>
+
+          <section class="map-results-head">
+            <div>
+              <span class="map-panel-kicker">Kết quả hiển thị</span>
+              <h3 id="resultCount">0 căn hộ</h3>
+              <p id="resultContext" class="map-results-context">
+                Đang hiển thị tất cả căn hộ nghỉ dưỡng trên hệ thống.
+              </p>
+            </div>
+            <div class="map-results-head-actions">
+              <button type="button" class="map-chip-btn map-chip-btn--soft" onclick="showAllApartments()">
+                Tất cả
+              </button>
+              <button
+                type="button"
+                id="sidebarInlineToggle"
+                class="map-chip-btn map-chip-btn--soft map-desktop-only"
+                onclick="toggleSidebar()"
+              >
+                Thu gọn
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <div id="listing-panel" class="map-results-grid"></div>
+
+        <div id="direction-panel" class="map-route-panel map-route-panel-hidden">
+          <div class="map-route-head">
+            <button class="back-btn" onclick="closeDirectionPanel()">
+              <i class="fas fa-arrow-left"></i> Quay lại kết quả
+            </button>
+            <div>
+              <span class="map-panel-kicker">Chỉ đường</span>
+              <h3 id="dest-title">...</h3>
+            </div>
+          </div>
+
+          <p id="route-summary-note" class="map-panel-note map-panel-note--status">
+            Chọn phương tiện để xem tuyến đường phù hợp nhất.
+          </p>
+
+          <div class="transport-options mb-3">
+            <button class="t-btn active" onclick="changeMode('driving', this)">Ô tô</button>
+            <button class="t-btn" onclick="changeMode('cycling', this)">Xe máy</button>
+            <button class="t-btn" onclick="changeMode('walking', this)">Đi bộ</button>
+          </div>
+
+          <div id="loading-box" class="text-center py-3 map-loading-box-hidden">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 mb-0">Đang tìm đường...</p>
+          </div>
+          <div id="error-box" class="alert alert-danger map-error-box-hidden"></div>
+          <div id="routes-list" class="list-group overflow-auto map-routes-list"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="map-stage">
+    <div class="map-toolbar">
+      <button type="button" id="sidebarToolbarToggle" class="map-toolbar-btn" onclick="toggleSidebar()">
+        <i class="fas fa-columns"></i> Thu gọn bộ lọc
+      </button>
+      <button type="button" class="map-toolbar-btn" onclick="showAllApartments()">
+        <i class="fas fa-th-large"></i> Tất cả
+      </button>
+      <button type="button" class="map-toolbar-btn" onclick="centerOnUser()">
+        <i class="fas fa-location-arrow"></i> Vị trí tôi
+      </button>
+    </div>
+
+    <div class="map-overlay-card">
+      <span class="map-panel-kicker">Trạng thái bản đồ</span>
+      <p id="mapHelperText" class="mb-0">Đang hiển thị tất cả căn hộ nghỉ dưỡng trên hệ thống.</p>
+    </div>
+
+    <div id="map"></div>
+  </div>
+</div>
+
+<script>
+  const DEFAULT_LAT = 10.7721;
+  const DEFAULT_LNG = 106.6983;
+  const DEFAULT_NEARBY_NOTE = "Chọn phạm vi từ 5 đến 30 km hoặc 5 đến 30 phút để xem căn hộ gần vị trí hiện tại của bạn. Bạn cũng có thể bấm lên bản đồ để ghim một điểm khác.";
+  const DEFAULT_RESULT_CONTEXT = "Đang hiển thị tất cả căn hộ nghỉ dưỡng trên hệ thống.";
+
+  const map = L.map("map").setView([DEFAULT_LAT, DEFAULT_LNG], 13);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+    subdomains: "abcd",
+    maxZoom: 20,
+  }).addTo(map);
+
+  let userLocation = null;
+  let userMarker = null;
+  let pinnedSearchLocation = null;
+  let pinnedSearchMarker = null;
+  let currentDest = null;
+  let currentMode = "driving";
+  let routesData = [];
+  let currentRouteLayers = [];
+  let distanceLabels = [];
+  let infoControl = null;
+  let nearbyCriteria = "distance";
+  let nearbyTravelMode = "driving";
+  let nearbyCircle = null;
+  let nearbySearchActive = false;
+  let currentResultContext = DEFAULT_RESULT_CONTEXT;
+  let regionSearchTimer = null;
+  const apartmentMarkerMap = new Map();
+
+  const allApartments = {{ apartments|safe }};
+  const geojsonData = {{ geojson_data|safe }};
+  const markerGroup = L.layerGroup().addTo(map);
+
+  const hotelIcon = L.divIcon({
+    className: "custom-hotel-icon",
+    html: `<div class="map-hotel-icon"><i class="fas fa-bed"></i></div>`,
+    iconSize: [38, 38],
+    iconAnchor: [19, 38],
+    popupAnchor: [0, -38],
+  });
+
+  const pinSearchIcon = L.divIcon({
+    className: "custom-div-icon map-search-pin-wrapper",
+    html: `<div class="map-search-pin-icon"><i class="fas fa-map-pin"></i></div>`,
+    iconSize: [32, 42],
+    iconAnchor: [16, 42],
+    popupAnchor: [0, -36],
+  });
+
+  function escapeJsString(value) {
+    return String(value || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  }
+
+  function formatDuration(minutes) {
+    if (!minutes || minutes <= 0) {
+      return "Ngay tại vị trí";
+    }
+    if (minutes < 60) {
+      return `${minutes} phút`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes === 0 ? `${hours}h` : `${hours}h ${remainingMinutes}p`;
+  }
+
+  function formatDistance(distanceKm) {
+    if (distanceKm === null || distanceKm === undefined) {
+      return "";
+    }
+    return `${Number(distanceKm).toFixed(1).replace(".0", "")} km`;
+  }
+
+  function getRouteOrigin() {
+    return pinnedSearchLocation || userLocation || null;
+  }
+
+  function getRouteOriginLabel() {
+    return pinnedSearchLocation ? "điểm ghim" : "vị trí hiện tại của bạn";
+  }
+
+  function getDefaultNearbyNote() {
+    if (pinnedSearchLocation) {
+      return "Đã ghim một điểm trên bản đồ. Chọn bán kính rồi nhấn tìm để xem căn hộ quanh điểm này.";
+    }
+    if (userLocation) {
+      return DEFAULT_NEARBY_NOTE;
+    }
+    return "Cho phép lấy vị trí hiện tại hoặc bấm trực tiếp lên bản đồ để ghim một điểm làm tâm tìm kiếm.";
+  }
+
+  function setNearbySummary(text) {
+    document.getElementById("nearby-summary").textContent = text || getDefaultNearbyNote();
+  }
+
+  function setMapHelperText(text) {
+    document.getElementById("mapHelperText").textContent = text || DEFAULT_RESULT_CONTEXT;
+  }
+
+  function updateResultState(count, contextText) {
+    currentResultContext = contextText || currentResultContext || DEFAULT_RESULT_CONTEXT;
+    document.getElementById("resultCount").textContent =
+      count === 0 ? "Chưa có căn hộ phù hợp" : `${count} căn hộ`;
+    document.getElementById("resultContext").textContent = currentResultContext;
+    setMapHelperText(currentResultContext);
+  }
+
+  function updateSidebarToggleLabels() {
+    const isCollapsed = document.getElementById("mapPageShell").classList.contains("sidebar-collapsed");
+    const toolbarButton = document.getElementById("sidebarToolbarToggle");
+    const inlineButton = document.getElementById("sidebarInlineToggle");
+    const nextLabel = isCollapsed ? "Mở bộ lọc" : "Thu gọn bộ lọc";
+    const inlineLabel = isCollapsed ? "Mở rộng" : "Thu gọn";
+
+    if (toolbarButton) {
+      toolbarButton.innerHTML = `<i class="fas fa-columns"></i> ${nextLabel}`;
+    }
+    if (inlineButton) {
+      inlineButton.textContent = inlineLabel;
+    }
+  }
+
+  function toggleSidebar() {
+    document.getElementById("mapPageShell").classList.toggle("sidebar-collapsed");
+    updateSidebarToggleLabels();
+    window.setTimeout(() => map.invalidateSize(), 260);
+  }
+
+  function clearNearbyRadius() {
+    if (nearbyCircle) {
+      map.removeLayer(nearbyCircle);
+      nearbyCircle = null;
+    }
+  }
+
+  function drawNearbyRadius(lat, lng, radiusKm) {
+    clearNearbyRadius();
+    nearbyCircle = L.circle([lat, lng], {
+      radius: radiusKm * 1000,
+      color: "#173055",
+      weight: 2,
+      fillColor: "#d4af37",
+      fillOpacity: 0.09,
+      dashArray: "10 8",
+    }).addTo(map);
+  }
+
+  function clearRouteOverlays() {
+    currentRouteLayers.forEach((layer) => map.removeLayer(layer));
+    currentRouteLayers = [];
+    distanceLabels.forEach((layer) => map.removeLayer(layer));
+    distanceLabels = [];
+    if (infoControl) {
+      map.removeControl(infoControl);
+      infoControl = null;
+    }
+  }
+
+  function centerOnUser() {
+    if (userLocation) {
+      map.flyTo([userLocation.lat, userLocation.lng], 14);
+      if (userMarker) {
+        userMarker.openPopup();
+      }
+      return;
+    }
+    map.setView([DEFAULT_LAT, DEFAULT_LNG], 13);
+  }
+
+  function fitMapToMarkers() {
+    if (markerGroup.getLayers().length > 0) {
+      const bounds = L.featureGroup(markerGroup.getLayers()).getBounds();
+      if (bounds.isValid()) {
+        map.fitBounds(bounds.pad(0.2), { padding: [50, 50], maxZoom: 15 });
+        return;
+      }
+    }
+
+    const activeCenter = getActiveNearbyCenter();
+    if (activeCenter) {
+      map.setView([activeCenter.lat, activeCenter.lng], pinnedSearchLocation ? 14 : 13);
+      return;
+    }
+
+    map.setView([DEFAULT_LAT, DEFAULT_LNG], 13);
+  }
+
+  function buildApartmentFocusBounds() {
+    const bounds = L.latLngBounds([]);
+    const activeCenter = getActiveNearbyCenter();
+
+    if (activeCenter) {
+      bounds.extend([activeCenter.lat, activeCenter.lng]);
+    }
+
+    markerGroup.getLayers().forEach((layer) => {
+      bounds.extend(layer.getLatLng());
+    });
+
+    return bounds;
+  }
+
+  function fitMapToNearbyResults() {
+    if (markerGroup.getLayers().length > 0) {
+      const focusBounds = buildApartmentFocusBounds();
+      if (focusBounds.isValid()) {
+        map.fitBounds(focusBounds.pad(0.32), { padding: [44, 44], maxZoom: 16 });
+        return;
+      }
+    }
+
+    if (nearbyCircle) {
+      map.fitBounds(nearbyCircle.getBounds(), { padding: [32, 32], maxZoom: 13 });
+      return;
+    }
+
+    fitMapToMarkers();
+  }
+
+  function buildResultMetaHtml(apt) {
+    if (apt.distance_km === undefined && apt.estimated_time_min === undefined) {
+      return "";
+    }
+
+    return `
+      <div class="apt-meta-row">
+        <span class="apt-meta-pill"><i class="fas fa-location-arrow"></i> ${formatDistance(apt.distance_km)}</span>
+        <span class="apt-meta-pill"><i class="fas fa-clock"></i> ${formatDuration(apt.estimated_time_min)}</span>
+      </div>
+    `;
+  }
+
+  function renderApartments(dataList, geoData) {
+    const listContainer = document.getElementById("listing-panel");
+    listContainer.innerHTML = "";
+    listContainer.style.display = "grid";
+    apartmentMarkerMap.clear();
+    markerGroup.clearLayers();
+    updateResultState(dataList.length, currentResultContext);
+
+    if (!dataList.length) {
+      listContainer.innerHTML = `
+        <div class="map-empty-state">
+          <i class="fas fa-search-location"></i>
+          <div class="map-empty-state-title">Không tìm thấy căn hộ phù hợp</div>
+          <p>Hãy đổi khu vực tìm kiếm hoặc nới rộng bán kính để xem thêm căn hộ.</p>
+          <button type="button" class="map-chip-btn" onclick="showAllApartments()">Xem lại tất cả căn hộ</button>
+        </div>
+      `;
+      return;
+    }
+
+    dataList.forEach((apt) => {
+      const safeName = escapeJsString(apt.name);
+      const html = `
+        <article class="apt-card" id="card-${apt.id}" onclick="focusApartment(${apt.lat}, ${apt.lng}, ${apt.id})">
+          <div class="apt-img-wrap">
+            <img src="${apt.image}" class="apt-img" alt="${apt.name}" />
+          </div>
+          <div class="apt-details">
+            <div class="apt-card-top">
+              <div>
+                <span class="apt-type-pill">Nguyên căn</span>
+                <h5 class="apt-name">${apt.name}</h5>
+              </div>
+              <div class="apt-price-box">
+                <span class="apt-price">${apt.price}</span>
+                <small>/đêm</small>
+              </div>
+            </div>
+
+            <p class="apt-address"><i class="fas fa-map-marker-alt"></i> ${apt.address}</p>
+            ${buildResultMetaHtml(apt)}
+
+            <div class="apt-actions">
+              <button class="map-action-btn map-action-btn--ghost" onclick="event.stopPropagation(); prepareRoute(${apt.lat}, ${apt.lng}, '${safeName}')">
+                <i class="fas fa-route"></i> Chỉ đường
+              </button>
+              <a href="/apartment/${apt.id}/" class="map-action-btn map-action-btn--primary" onclick="event.stopPropagation();">
+                <i class="fas fa-info-circle"></i> Xem chi tiết
+              </a>
+            </div>
+          </div>
+        </article>
+      `;
+      listContainer.insertAdjacentHTML("beforeend", html);
+    });
+
+    L.geoJSON(geoData, {
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, { icon: hotelIcon });
+      },
+      onEachFeature: function (feature, layer) {
+        const apt = feature.properties;
+        apartmentMarkerMap.set(String(apt.id), layer);
+        const safeName = escapeJsString(apt.name);
+        const popupContent = `
+          <div class="map-popup-card">
+            <div class="map-popup-media">
+              <img src="${apt.image}" alt="${apt.name}">
+            </div>
+            <div class="map-popup-body">
+              <h6 title="${apt.name}">${apt.name}</h6>
+              <p class="map-popup-price">${apt.price} <small>/đêm</small></p>
+              ${buildResultMetaHtml(apt)}
+              <div class="map-popup-actions">
+                <button class="map-popup-btn map-popup-btn--ghost" onclick="prepareRoute(${apt.lat}, ${apt.lng}, '${safeName}')">
+                  <i class="fas fa-route"></i> Đi
+                </button>
+                <a href="/apartment/${apt.id}/" class="map-popup-btn map-popup-btn--primary">
+                  <i class="fas fa-info-circle"></i> Xem
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+        layer.bindPopup(popupContent, {
+          maxWidth: 232,
+          minWidth: 188,
+          closeButton: false,
+          className: "map-compact-popup",
+          offset: [0, -18],
+          autoPanPaddingTopLeft: [16, 90],
+          autoPanPaddingBottomRight: [16, 24],
+        });
+      },
+    }).addTo(markerGroup);
+  }
+
+  function updateNearbyValueLabels() {
+    document.getElementById("distanceValueLabel").textContent = `${document.getElementById("nearbyDistanceRange").value} km`;
+    document.getElementById("timeValueLabel").textContent = `${document.getElementById("nearbyTimeRange").value} phút`;
+  }
+
+  function setNearbyCriteria(criteria) {
+    nearbyCriteria = criteria;
+    document.getElementById("criteria-distance-btn").classList.toggle("active", criteria === "distance");
+    document.getElementById("criteria-time-btn").classList.toggle("active", criteria === "time");
+    document.getElementById("nearby-distance-box").style.display = criteria === "distance" ? "block" : "none";
+    document.getElementById("nearby-time-box").style.display = criteria === "time" ? "block" : "none";
+  }
+
+  function setNearbyTravelMode(mode, button) {
+    nearbyTravelMode = mode;
+    document.querySelectorAll(".nearby-mode-btn").forEach((item) => item.classList.remove("active"));
+    button.classList.add("active");
+  }
+
+  function getActiveNearbyCenter() {
+    return pinnedSearchLocation || userLocation;
+  }
+
+  function formatPinnedCoordinates(lat, lng) {
+    return `${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`;
+  }
+
+  function updateNearbyCenterUi() {
+    const labelElement = document.getElementById("nearbyCenterLabel");
+    const hintElement = document.getElementById("nearbyCenterHint");
+    const clearButton = document.getElementById("clearPinnedCenterBtn");
+    const searchButton = document.getElementById("nearbySearchButton");
+
+    if (!labelElement || !hintElement || !clearButton || !searchButton) {
+      return;
+    }
+
+    if (pinnedSearchLocation) {
+      labelElement.textContent = `Điểm đã ghim: ${formatPinnedCoordinates(pinnedSearchLocation.lat, pinnedSearchLocation.lng)}`;
+      hintElement.textContent = "Đang dùng điểm bạn vừa ghim làm tâm tìm kiếm. Bấm điểm khác trên bản đồ để đổi nhanh.";
+      searchButton.innerHTML = '<i class="fas fa-location-arrow"></i> Tìm quanh điểm đã ghim';
+      clearButton.disabled = false;
+      return;
+    }
+
+    if (userLocation) {
+      labelElement.textContent = "Vị trí hiện tại của bạn";
+      hintElement.textContent = "Bạn có thể bấm trực tiếp lên bản đồ để ghim một điểm khác rồi tìm quanh điểm đó.";
+      searchButton.innerHTML = '<i class="fas fa-location-arrow"></i> Tìm quanh vị trí hiện tại';
+      clearButton.disabled = true;
+      return;
+    }
+
+    labelElement.textContent = "Chưa có tâm tìm kiếm";
+    hintElement.textContent = "Hãy cho phép lấy vị trí hiện tại hoặc bấm lên bản đồ để ghim một điểm muốn tìm quanh đó.";
+    searchButton.innerHTML = '<i class="fas fa-location-arrow"></i> Chọn tâm rồi tìm';
+    clearButton.disabled = true;
+  }
+
+  function setPinnedSearchPoint(lat, lng, options = {}) {
+    pinnedSearchLocation = { lat: lat, lng: lng };
+
+    if (!pinnedSearchMarker) {
+      pinnedSearchMarker = L.marker([lat, lng], { icon: pinSearchIcon, zIndexOffset: 950 }).addTo(map);
+    } else {
+      pinnedSearchMarker.setLatLng([lat, lng]);
+    }
+
+    pinnedSearchMarker.bindPopup("<b>Tâm tìm kiếm đã ghim</b><br>Nhấn nút tìm để lọc căn hộ quanh điểm này.");
+    updateNearbyCenterUi();
+
+    if (options.openPopup !== false) {
+      pinnedSearchMarker.openPopup();
+    }
+
+    if (options.focus !== false) {
+      map.flyTo([lat, lng], Math.max(map.getZoom(), 14));
+    }
+
+    if (nearbySearchActive && options.refreshNearby !== false) {
+      searchNearbyApartments();
+      return;
+    }
+
+    setNearbySummary();
+  }
+
+  function clearPinnedSearchPoint(options = {}) {
+    const shouldRefreshNearby = nearbySearchActive && options.refreshNearby !== false;
+    pinnedSearchLocation = null;
+
+    if (pinnedSearchMarker) {
+      map.removeLayer(pinnedSearchMarker);
+      pinnedSearchMarker = null;
+    }
+
+    updateNearbyCenterUi();
+
+    if (shouldRefreshNearby) {
+      if (userLocation) {
+        searchNearbyApartments();
+      } else {
+        resetNearbySearch();
+      }
+      return;
+    }
+
+    setNearbySummary();
+  }
+
+  function scheduleRegionFilter() {
+    window.clearTimeout(regionSearchTimer);
+    regionSearchTimer = window.setTimeout(filterByRegion, 260);
+  }
+
+  function clearRegionSearch() {
+    document.getElementById("regionSearch").value = "";
+    filterByRegion();
+  }
+
+  function showAllApartments() {
+    nearbySearchActive = false;
+    currentDest = null;
+    clearNearbyRadius();
+    clearRouteOverlays();
+    document.getElementById("regionSearch").value = "";
+    setNearbySummary();
+    document.getElementById("direction-panel").style.display = "none";
+    renderApartments(allApartments, geojsonData);
+    currentResultContext = DEFAULT_RESULT_CONTEXT;
+    updateResultState(allApartments.length, DEFAULT_RESULT_CONTEXT);
+    fitMapToMarkers();
+  }
+
+  function searchNearbyApartments() {
+    const activeCenter = getActiveNearbyCenter();
+    const usingPinnedCenter = Boolean(pinnedSearchLocation);
+    const centerLabel = usingPinnedCenter ? "điểm đã ghim" : "vị trí hiện tại của bạn";
+
+    if (!activeCenter) {
+      const waitingText = "Hãy cho phép lấy vị trí hiện tại hoặc bấm lên bản đồ để ghim một điểm làm tâm tìm kiếm.";
+      setNearbySummary(waitingText);
+      setMapHelperText(waitingText);
+      updateNearbyCenterUi();
+      return;
+    }
+
+    const value =
+      nearbyCriteria === "distance"
+        ? document.getElementById("nearbyDistanceRange").value
+        : document.getElementById("nearbyTimeRange").value;
+    const mode = nearbyCriteria === "time" ? nearbyTravelMode : "driving";
+
+    document.getElementById("regionSearch").value = "";
+    setNearbySummary(`Đang lọc căn hộ quanh ${centerLabel}...`);
+    setMapHelperText(`Đang lọc căn hộ quanh ${centerLabel}...`);
+
+    fetch(
+      `/api/search-nearby/?lat=${activeCenter.lat}&lng=${activeCenter.lng}&criteria=${nearbyCriteria}&value=${value}&mode=${mode}`
+    )
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.error) {
+          setNearbySummary(response.error);
+          setMapHelperText(response.error);
+          return;
+        }
+
+        nearbySearchActive = true;
+        currentResultContext = response.meta.summary;
+        renderApartments(response.data, response.geojson);
+        drawNearbyRadius(response.meta.center.lat, response.meta.center.lng, response.meta.search_radius_km);
+        fitMapToNearbyResults();
+
+        const resultText =
+          response.meta.result_count > 0
+            ? `${response.meta.summary}. Tìm thấy ${response.meta.result_count} căn hộ phù hợp quanh ${centerLabel}.`
+            : `${response.meta.summary}. Chưa có căn hộ phù hợp quanh ${centerLabel}.`;
+        setNearbySummary(resultText);
+        setMapHelperText(resultText);
+      })
+      .catch(() => {
+        const errorText = "Không thể tìm theo bán kính lúc này. Vui lòng thử lại.";
+        setNearbySummary(errorText);
+        setMapHelperText(errorText);
+      });
+  }
+
+  function resetNearbySearch() {
+    nearbySearchActive = false;
+    clearNearbyRadius();
+    setNearbySummary();
+
+    if (!document.getElementById("regionSearch").value.trim()) {
+      currentResultContext = DEFAULT_RESULT_CONTEXT;
+      renderApartments(allApartments, geojsonData);
+      fitMapToMarkers();
+      return;
+    }
+
+    filterByRegion();
+  }
+
+  function filterByRegion() {
+    const keyword = document.getElementById("regionSearch").value.trim();
+    if (keyword === "") {
+      if (nearbySearchActive) {
+        updateResultState(markerGroup.getLayers().length, currentResultContext);
+        return;
+      }
+
+      currentResultContext = DEFAULT_RESULT_CONTEXT;
+      clearNearbyRadius();
+      renderApartments(allApartments, geojsonData);
+      fitMapToMarkers();
+      return;
+    }
+
+    nearbySearchActive = false;
+    clearNearbyRadius();
+    const searchingText = `Đang tìm khu vực: ${keyword}`;
+    setNearbySummary("Đang hiển thị theo khu vực tìm kiếm. Bộ lọc gần vị trí đã tạm tắt.");
+    setMapHelperText(searchingText);
+
+    fetch(`/api/search/?q=${encodeURIComponent(keyword)}`)
+      .then((res) => res.json())
+      .then((response) => {
+        currentResultContext = `Kết quả theo khu vực: ${keyword}`;
+        renderApartments(response.data, response.geojson);
+        fitMapToMarkers();
+      })
+      .catch(() => {
+        const errorText = "Không thể tìm theo khu vực lúc này. Vui lòng thử lại.";
+        setMapHelperText(errorText);
+      });
+  }
+
+  function setLocationStatus(found, isFallback) {
+    const statusElement = document.getElementById("status-msg");
+    if (!statusElement) {
+      return;
+    }
+
+    if (!found) {
+      statusElement.className = "map-status-pill is-loading";
+      statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tìm vị trí của bạn...';
+      return;
+    }
+
+    if (isFallback) {
+      statusElement.className = "map-status-pill is-warning";
+      statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Đang dùng vị trí mặc định';
+      return;
+    }
+
+    statusElement.className = "map-status-pill is-success";
+    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Đã tìm thấy vị trí của bạn';
+  }
+
+  function onLocationFound(lat, lng, isFallback) {
+    userLocation = { lat: lat, lng: lng };
+    setLocationStatus(true, isFallback);
+
+    if (userMarker) {
+      map.removeLayer(userMarker);
+    }
+
+    const pulseIcon = L.divIcon({
+      className: "custom-div-icon",
+      html: "<div class='user-pulse-icon'></div>",
+      iconSize: [18, 18],
+      iconAnchor: [9, 9],
+    });
+
+    userMarker = L.marker([lat, lng], { icon: pulseIcon }).addTo(map).bindPopup(
+      isFallback ? "<b>Vị trí mặc định</b>" : "<b>Bạn đang ở đây</b>"
+    );
+
+    updateNearbyCenterUi();
+
+    if (currentDest) {
+      callPythonAPI();
+    } else {
+      checkUrlForAutoRoute();
+    }
+  }
+
+  setLocationStatus(false, false);
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => onLocationFound(pos.coords.latitude, pos.coords.longitude, false),
+      () => onLocationFound(DEFAULT_LAT, DEFAULT_LNG, true)
+    );
+  } else {
+    onLocationFound(DEFAULT_LAT, DEFAULT_LNG, true);
+  }
+
+  map.on("click", function (event) {
+    const clickedElement = event.originalEvent?.target;
+    if (currentDest || clickedElement?.closest(".leaflet-control, .leaflet-popup, .leaflet-marker-icon")) {
+      return;
+    }
+    setPinnedSearchPoint(event.latlng.lat, event.latlng.lng);
+  });
+
+  function prepareRoute(lat, lng, name) {
+    currentDest = { lat: lat, lng: lng, name: name };
+    map.closePopup();
+    document.getElementById("listing-panel").style.display = "none";
+    document.getElementById("direction-panel").style.display = "flex";
+    document.getElementById("dest-title").innerText = name;
+    const routeOrigin = getRouteOrigin();
+    if (!routeOrigin) {
+      document.getElementById("route-summary-note").textContent =
+        "Hãy cho phép lấy vị trí hiện tại hoặc ghim một điểm để tính đường đi.";
+      document.getElementById("error-box").innerText =
+        "Chưa có điểm bắt đầu. Hãy bật vị trí hiện tại hoặc ghim một điểm trên bản đồ.";
+      document.getElementById("error-box").style.display = "block";
+      setMapHelperText("Hãy bật vị trí hoặc ghim một điểm để tính đường đi đến căn hộ.");
+      return;
+    }
+
+    document.getElementById("error-box").style.display = "none";
+    document.getElementById("route-summary-note").textContent =
+      `Đang chuẩn bị tuyến đường từ ${getRouteOriginLabel()} đến ${name}.`;
+    setMapHelperText(`Đang xem chỉ đường từ ${getRouteOriginLabel()} đến ${name}.`);
+    callPythonAPI();
+  }
+
+  function callPythonAPI() {
+    const routeOrigin = getRouteOrigin();
+    if (!routeOrigin || !currentDest) {
+      return;
+    }
+
+    document.getElementById("loading-box").style.display = "block";
+    document.getElementById("routes-list").innerHTML = "";
+    document.getElementById("error-box").style.display = "none";
+    clearRouteOverlays();
+
+    const url = `/api/route/?start_lat=${routeOrigin.lat}&start_lng=${routeOrigin.lng}&end_lat=${currentDest.lat}&end_lng=${currentDest.lng}&mode=${currentMode}`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        document.getElementById("loading-box").style.display = "none";
+        if (data.error || !data.routes) {
+          document.getElementById("error-box").innerText = data.error || "Không tìm thấy đường đi.";
+          document.getElementById("error-box").style.display = "block";
+          document.getElementById("route-summary-note").textContent = data.error || "Không tìm thấy đường đi.";
+          return;
+        }
+
+        routesData = data.routes;
+        routesData.forEach((route, index) => {
+          const isMain = index === 0;
+          const routeLine = L.polyline(route.route_points, {
+            color: isMain ? "#4f7cff" : "#94a3b8",
+            weight: isMain ? 7 : 4,
+          }).addTo(map);
+          routeLine.on("click", () => selectRoute(index));
+          currentRouteLayers.push(routeLine);
+
+          if (isMain) {
+            drawLabelAndInfo(route);
+            document.getElementById("route-summary-note").textContent =
+              `Từ ${getRouteOriginLabel()} • ${route.summary} • ${route.distance_km} km • ${formatDuration(route.duration_min)}`;
+          }
+
+          const isActive = isMain ? "active" : "";
+          const itemHtml = `
+            <a href="#" onclick="selectRoute(${index}); return false;" class="list-group-item list-group-item-action ${isActive}">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">Tuyến ${index + 1}: ${route.summary}</h6>
+                <small>${formatDuration(route.duration_min)}</small>
+              </div>
+              <p class="mb-1 text-danger font-weight-bold">${route.distance_km} km</p>
+            </a>
+          `;
+          document.getElementById("routes-list").insertAdjacentHTML("beforeend", itemHtml);
+        });
+
+        if (currentRouteLayers[0]) {
+          map.fitBounds(currentRouteLayers[0].getBounds(), { padding: [50, 50] });
+        }
+      })
+      .catch(() => {
+        document.getElementById("loading-box").style.display = "none";
+        document.getElementById("error-box").innerText = "Không thể tải dữ liệu chỉ đường lúc này.";
+        document.getElementById("error-box").style.display = "block";
+        document.getElementById("route-summary-note").textContent = "Không thể tải dữ liệu chỉ đường lúc này.";
+      });
+  }
+
+  function drawLabelAndInfo(route) {
+    const midPoint = route.route_points[Math.floor(route.route_points.length / 2)];
+    const tooltip = L.tooltip({ permanent: true, direction: "center", className: "distance-tooltip" })
+      .setContent(`${route.distance_km} km`)
+      .setLatLng(midPoint)
+      .addTo(map);
+    distanceLabels.push(tooltip);
+
+    if (infoControl) {
+      map.removeControl(infoControl);
+    }
+    infoControl = L.control({ position: "topright" });
+    infoControl.onAdd = function () {
+      const div = L.DomUtil.create("div", "info-floating-box");
+      div.innerHTML = `
+        <div class="info-dist">${route.distance_km} km</div>
+        <div class="info-time">${formatDuration(route.duration_min)}</div>
+      `;
+      return div;
+    };
+    infoControl.addTo(map);
+  }
+
+  function selectRoute(selectedIndex) {
+    currentRouteLayers.forEach((layer, index) => {
+      const isSelected = index === selectedIndex;
+      layer.setStyle({
+        color: isSelected ? "#4f7cff" : "#94a3b8",
+        weight: isSelected ? 7 : 4,
+      });
+      if (isSelected) {
+        layer.bringToFront();
+      }
+    });
+
+    distanceLabels.forEach((layer) => map.removeLayer(layer));
+    distanceLabels = [];
+    drawLabelAndInfo(routesData[selectedIndex]);
+
+    document.getElementById("route-summary-note").textContent =
+      `Từ ${getRouteOriginLabel()} • ${routesData[selectedIndex].summary} • ${routesData[selectedIndex].distance_km} km • ${formatDuration(routesData[selectedIndex].duration_min)}`;
+
+    document.querySelectorAll("#routes-list a").forEach((item, index) => {
+      item.classList.toggle("active", index === selectedIndex);
+    });
+  }
+
+  function changeMode(mode, button) {
+    currentMode = mode;
+    document.querySelectorAll("#direction-panel .t-btn").forEach((item) => item.classList.remove("active"));
+    button.classList.add("active");
+    callPythonAPI();
+  }
+
+  function closeDirectionPanel() {
+    document.getElementById("direction-panel").style.display = "none";
+    document.getElementById("listing-panel").style.display = "grid";
+    clearRouteOverlays();
+    setMapHelperText(currentResultContext);
+
+    if (nearbySearchActive) {
+      fitMapToNearbyResults();
+      return;
+    }
+    fitMapToMarkers();
+  }
+
+  function focusApartment(lat, lng, id) {
+    map.flyTo([lat, lng], 15);
+    const marker = apartmentMarkerMap.get(String(id));
+    if (marker) {
+      window.setTimeout(() => marker.openPopup(), 220);
+    }
+  }
+
+  function checkUrlForAutoRoute() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get("q");
+    if (query) {
+      document.getElementById("regionSearch").value = query;
+      filterByRegion();
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+
+    const targetId = urlParams.get("target_id");
+    if (targetId) {
+      const targetApt = allApartments.find((item) => item.id == targetId);
+      if (targetApt) {
+        prepareRoute(targetApt.lat, targetApt.lng, targetApt.name);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }
+
+  updateSidebarToggleLabels();
+  updateNearbyValueLabels();
+  updateNearbyCenterUi();
+  renderApartments(allApartments, geojsonData);
+  updateResultState(allApartments.length, DEFAULT_RESULT_CONTEXT);
+  fitMapToMarkers();
+</script>
+{% endblock %}

@@ -1,0 +1,725 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ apartment.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="{% static 'css/apartment-detail.css' %}?v=20260413-rating-stars-clean" />
+{% endblock %}
+
+{% block content_wrapper %}
+<div class="detail-page">
+    <a href="{% url 'map_view' %}" class="detail-back"><i class="fas fa-arrow-left"></i> Quay lại bản đồ căn hộ</a>
+
+    <section class="detail-hero">
+        <div class="detail-card">
+            <section id="main-slider" class="splide main-slider" aria-label="Hình ảnh căn hộ">
+                <div class="splide__track">
+                    <ul class="splide__list">
+                        <li class="splide__slide"><img src="{{ apartment.cover_image_url }}" alt="{{ apartment.name }}"></li>
+                        {% for img in gallery_images %}
+                        <li class="splide__slide"><img src="{{ img.image.url }}" alt="{{ img.title|default:apartment.name }}"></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
+            {% if gallery_images %}
+            <section id="thumbnail-slider" class="splide thumbnail-slider" aria-label="Thư viện ảnh">
+                <div class="splide__track">
+                    <ul class="splide__list">
+                        <li class="splide__slide"><img src="{{ apartment.cover_image_url }}" alt="{{ apartment.name }}"></li>
+                        {% for img in gallery_images %}
+                        <li class="splide__slide"><img src="{{ img.image.url }}" alt="{{ img.title|default:apartment.name }}"></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+            {% endif %}
+
+            <div class="detail-stats">
+                <div class="detail-stat"><span>Hình thức</span><strong>Nguyên căn</strong></div>
+                <div class="detail-stat"><span>Thư viện ảnh</span><strong>{{ gallery_images|length|add:"1" }}</strong></div>
+                <div class="detail-stat"><span>Tiện ích</span><strong>{{ services|length }}</strong></div>
+                <div class="detail-stat"><span>Trạng thái</span><strong>Sẵn sàng</strong></div>
+            </div>
+        </div>
+
+        <aside class="detail-side-card">
+            <span class="detail-kicker"><i class="fas fa-building"></i> Căn hộ nghỉ dưỡng</span>
+            <h1 class="detail-title">{{ apartment.name }}</h1>
+            <p class="detail-address"><i class="fas fa-map-marker-alt mr-2"></i>{{ apartment.address }}</p>
+
+            <div class="detail-price">
+                <div>
+                    <label>Giá thuê mỗi đêm</label>
+                    <strong>{{ apartment.price }} <small>VNĐ / đêm</small></strong>
+                </div>
+                <div class="detail-price-note">Đặt cọc trước 1 đêm. Phần còn lại thanh toán khi nhận căn.</div>
+            </div>
+
+            <p class="detail-summary">{{ apartment.desc|striptags|truncatechars:240|default:'Chưa cập nhật mô tả chi tiết cho căn hộ này.' }}</p>
+
+            <div class="detail-grid">
+                <div class="detail-grid-item"><span>Loại thuê</span><strong>Thuê trọn căn hộ</strong></div>
+                <div class="detail-grid-item"><span>Thanh toán</span><strong>Cọc trước, còn lại khi nhận căn</strong></div>
+                <div class="detail-grid-item"><span>Xác nhận</span><strong>Quản trị viên duyệt và khóa lịch</strong></div>
+                <div class="detail-grid-item"><span>Bản đồ</span><strong>Có chỉ đường trực tiếp trên GIS</strong></div>
+            </div>
+
+            {% if services %}
+            <div class="detail-chips">
+                {% for item in services|slice:":6" %}
+                <span class="detail-chip"><i class="fas {{ item.icon|default:'fa-check-circle' }}"></i> {{ item.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="detail-actions">
+                <button type="button" class="detail-btn" data-toggle="modal" data-target="#bookingModal">
+                    <i class="fas fa-calendar-check"></i> Đặt thuê nguyên căn
+                </button>
+                <a href="{% url 'map_view' %}?target_id={{ apartment.id }}" class="detail-btn-alt">
+                    <i class="fas fa-directions"></i> Xem đường đi trên bản đồ
+                </a>
+                <a href="{% url 'apartment_showcase' apartment.id %}" class="detail-btn-outline">
+                    <i class="fas fa-images"></i> Xem album thông tin đầy đủ
+                </a>
+                <a href="#review-form-panel" class="detail-btn-outline js-review-jump">
+                    <i class="fas fa-star"></i> Viết đánh giá ngay
+                </a>
+            </div>
+
+            <div class="detail-note">
+                Sau khi gửi yêu cầu thuê, hệ thống sẽ chuyển sang bước thanh toán tiền cọc.
+                Lịch của căn hộ chỉ bị khóa khi quản trị viên xác nhận đơn hoặc chuyển sang trạng thái đang ở.
+            </div>
+        </aside>
+    </section>
+
+    <section class="detail-feature-grid">
+        <div class="detail-feature">
+            <i class="fas fa-house-user"></i>
+            <h3>Thuê trọn căn riêng tư</h3>
+            <p>Phù hợp cho gia đình, nhóm bạn hoặc chuyến nghỉ dưỡng cần không gian riêng và chủ động hơn.</p>
+        </div>
+        <div class="detail-feature">
+            <i class="fas fa-wallet"></i>
+            <h3>Thanh toán rõ ràng</h3>
+            <p>Thanh toán tiền cọc trước để giữ chỗ, phần còn lại xử lý khi tới nhận căn để minh bạch hơn.</p>
+        </div>
+        <div class="detail-feature">
+            <i class="fas fa-shield-alt"></i>
+            <h3>Lịch thuê được kiểm tra thật</h3>
+            <p>Các khoảng ngày đã duyệt sẽ hiển thị rõ trong lịch để tránh đặt trùng và giảm rủi ro xác nhận chậm.</p>
+        </div>
+    </section>
+
+    <section class="detail-body">
+        <div class="detail-card detail-section">
+            <div class="detail-section-head">
+                <h2>Mô tả chi tiết căn hộ</h2>
+            </div>
+            <div class="apartment-description-content">{{ apartment_description_html|safe }}</div>
+        </div>
+
+        <aside>
+            {% if services %}
+            <div class="detail-card detail-section mb-4">
+                <div class="detail-section-head"><h2>Tiện ích đi kèm</h2></div>
+                <div class="detail-list">
+                    {% for item in services %}
+                    <div class="detail-list-item">
+                        <strong><i class="fas {{ item.icon|default:'fa-check-circle' }} mr-2"></i>{{ item.name }}</strong>
+                        <span>{{ item.description|default:'Tiện ích đã sẵn sàng phục vụ trong thời gian thuê căn hộ.' }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="detail-card detail-section">
+                <div class="detail-section-head"><h2>Lịch đã được xác nhận</h2></div>
+                {% if booked_ranges %}
+                <div class="detail-list">
+                    {% for item in booked_ranges|slice:":5" %}
+                    <div class="detail-list-item">
+                        <strong>{{ item.check_in_display }} - {{ item.check_out_display }}</strong>
+                        <span>Khoảng ngày này đã có khách và sẽ bị khóa trên lịch đặt.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="detail-empty">Hiện chưa có khoảng ngày nào được quản trị viên xác nhận khóa lịch. Bạn có thể chọn lịch phù hợp để gửi yêu cầu thuê.</div>
+                {% endif %}
+            </div>
+        </aside>
+    </section>
+    <section id="reviews" class="detail-review-layout">
+        <div class="detail-card detail-section">
+            <div class="detail-section-head">
+                <div>
+                    <h2>Đánh giá từ khách hàng</h2>
+                    <p class="detail-review-subtitle">Tổng hợp cảm nhận thực tế của khách đã xem và trải nghiệm căn hộ này.</p>
+                </div>
+            </div>
+
+            <div class="detail-review-summary">
+                <div class="detail-review-score">
+                    <strong>{{ average_rating_display }}</strong>
+                    <span>/ 5 sao</span>
+                </div>
+                <div>
+                    <div class="detail-review-stars">
+                        {% for star in star_range %}
+                        <i class="fas fa-star {% if average_rating >= star %}is-filled{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                    <div class="detail-review-count">{{ review_count }} đánh giá</div>
+                </div>
+            </div>
+
+            {% if reviews %}
+            <div class="detail-review-list">
+                {% for review in reviews %}
+                <article class="detail-review-card">
+                    <div class="detail-review-card-head">
+                        <div>
+                            <strong>{{ review.user.username }}</strong>
+                            <div class="detail-review-stars detail-review-stars--small">
+                                {% for star in star_range %}
+                                <i class="fas fa-star {% if star <= review.rating %}is-filled{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <span class="detail-review-date">{{ review.updated_at|date:"d/m/Y" }}</span>
+                    </div>
+                    <p>{{ review.comment }}</p>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="detail-empty">Chưa có đánh giá nào cho căn hộ này. Bạn có thể là người đầu tiên chia sẻ cảm nhận.</div>
+            {% endif %}
+        </div>
+
+        <aside id="review-form-panel" class="detail-card detail-section">
+            <div class="detail-section-head">
+                <div>
+                    {% if user_review %}Cập nhật đánh giá{% else %}Gửi đánh giá{% endif %}
+                    <p class="detail-review-subtitle">
+                        {% if user_review %}
+                        Mỗi tài khoản chỉ có 1 đánh giá cho mỗi căn hộ. Gửi lại sẽ cập nhật đánh giá hiện tại của bạn.
+                        {% else %}
+                        Mỗi tài khoản chỉ được lưu 1 đánh giá cho mỗi căn hộ.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+            <form method="POST" class="detail-review-form">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="review">
+
+                <div class="form-group">
+                    <label>{{ review_form.rating.label }}</label>
+                    <div class="detail-rating-options" role="radiogroup" aria-label="{{ review_form.rating.label }}">
+                        {% for star in star_range %}
+                        <input type="radio" id="review-star-{{ star }}" name="{{ review_form.rating.html_name }}" value="{{ star }}" class="detail-rating-radio" {% if selected_review_rating == star|stringformat:"s" %}checked{% endif %}>
+                        <label for="review-star-{{ star }}" class="detail-rating-star" data-rating="{{ star }}" title="{{ star }} sao" aria-label="{{ star }} sao">
+                            <i class="fas fa-star"></i>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <div id="detailRatingCurrent" class="detail-rating-current" aria-live="polite">
+                        Chọn số sao phù hợp với trải nghiệm của bạn.
+                    </div>
+                    {% if review_form.rating.errors %}<small class="text-danger d-block">{{ review_form.rating.errors.0 }}</small>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>{{ review_form.comment.label }}</label>
+                    {{ review_form.comment }}
+                    <small class="detail-review-helper">Bạn có thể viết ngắn hoặc dài tùy ý, chỉ cần nội dung không để trống.</small>
+                    {% if review_form.comment.errors %}<small class="text-danger d-block">{{ review_form.comment.errors.0 }}</small>{% endif %}
+                </div>
+
+                <button type="submit" class="detail-btn detail-review-submit">
+                    <i class="fas fa-star"></i>
+                    {% if user_review %}Cập nhật đánh giá{% else %}Gửi đánh giá{% endif %}
+                </button>
+            </form>
+            {% else %}
+            <div class="detail-empty">
+                Bạn cần đăng nhập để gửi đánh giá cho căn hộ này.
+                <a href="{% url 'login' %}?next={{ request.path }}" class="detail-inline-link">Đăng nhập ngay</a>
+            </div>
+            {% endif %}
+        </aside>
+    </section>
+</div>
+
+<div class="modal fade booking-modal" id="bookingModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Đặt thuê nguyên căn: {{ apartment.name }}</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" id="bookingRequestForm" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="booking">
+                <div class="modal-body">
+                    <div class="alert booking-intro-card">
+                        {% if user.is_authenticated %}
+                            Bạn đang đăng nhập bằng tài khoản <strong>{{ user.username }}</strong>. Sau khi gửi yêu cầu, hệ thống sẽ chuyển bạn sang bước thanh toán tiền cọc.
+                        {% else %}
+                            Bạn có thể đặt thuê ngay. Sau khi gửi yêu cầu, hệ thống sẽ chuyển sang bước thanh toán tiền cọc để bạn chọn MoMo hoặc chuyển khoản.
+                        {% endif %}
+                        <div class="small text-muted mt-2 mb-0">Lịch chỉ bị khóa khi quản trị viên chuyển đơn sang trạng thái đã xác nhận hoặc đang ở.</div>
+                    </div>
+
+                    {% if booking_form.non_field_errors %}
+                    <div class="alert alert-danger booking-inline-status">{{ booking_form.non_field_errors }}</div>
+                    {% endif %}
+
+                    {% if booked_ranges %}
+                    <div class="alert booking-ranges-card">
+                        <div class="small text-muted mb-2">Chỉ các đơn đã được quản trị viên xác nhận mới khóa lịch và chặn khách khác đặt trùng.</div>
+                        <div class="font-weight-bold mb-2">Các khoảng ngày đã có khách thuê</div>
+                        <div class="small mb-2">Những ngày dưới đây sẽ bị khóa trên lịch và không thể đặt trùng.</div>
+                        <ul class="mb-0 pl-3">
+                            {% for item in booked_ranges %}
+                            <li>{{ item.check_in_display }} - {{ item.check_out_display }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div class="booking-form-head">
+                        <h6>Thông tin khách thuê</h6>
+                        <p>Điền thông tin ngắn gọn để hệ thống kiểm tra lịch trống và tạo đơn đặt thuê cho bạn.</p>
+                    </div>
+
+                    <div id="bookingFormAlert" class="alert alert-danger booking-inline-status is-hidden"></div>
+                    <div id="bookingAvailabilityMessage" class="alert alert-danger booking-inline-status is-hidden"></div>
+
+                    <div class="row booking-form-grid">
+                        {% for field in booking_form %}
+                        <div class="col-md-{% if field.name == 'note' %}12{% else %}6{% endif %}">
+                            <div class="form-group">
+                                <label>{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                                {{ field }}
+                                {% if field.errors %}<small class="text-danger d-block booking-field-error">{{ field.errors.0 }}</small>{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary" id="bookingSubmitButton">Tiếp tục sang thanh toán cọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{ booked_ranges|json_script:"booked-ranges-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var reviewJumpLinks = document.querySelectorAll('.js-review-jump');
+    var reviewFormPanel = document.getElementById('review-form-panel');
+    var reviewTextarea = reviewFormPanel ? reviewFormPanel.querySelector('textarea') : null;
+    var ratingInputs = Array.prototype.slice.call(document.querySelectorAll('.detail-rating-radio'));
+    var ratingStars = Array.prototype.slice.call(document.querySelectorAll('.detail-rating-star'));
+    var ratingCurrent = document.getElementById('detailRatingCurrent');
+    var ratingCaptions = {
+        0: 'Chọn số sao phù hợp với trải nghiệm của bạn.',
+        1: '1 sao - Cần cải thiện nhiều hơn.',
+        2: '2 sao - Trải nghiệm chưa như mong đợi.',
+        3: '3 sao - Ổn, đáp ứng ở mức cơ bản.',
+        4: '4 sao - Khá hài lòng với căn hộ này.',
+        5: '5 sao - Rất hài lòng và đáng giới thiệu.',
+    };
+
+    function paintRating(value) {
+        ratingStars.forEach(function (star) {
+            var starValue = Number(star.getAttribute('data-rating') || 0);
+            star.classList.toggle('is-active', starValue <= value);
+        });
+        if (ratingCurrent) {
+            ratingCurrent.textContent = ratingCaptions[value] || ratingCaptions[0];
+        }
+    }
+
+    function getSelectedRating() {
+        var activeInput = ratingInputs.find(function (input) { return input.checked; });
+        return activeInput ? Number(activeInput.value || 0) : 0;
+    }
+
+    if (ratingInputs.length && ratingStars.length) {
+        paintRating(getSelectedRating());
+
+        ratingInputs.forEach(function (input) {
+            input.addEventListener('change', function () {
+                paintRating(Number(input.value || 0));
+            });
+        });
+
+        ratingStars.forEach(function (star) {
+            star.addEventListener('mouseenter', function () {
+                paintRating(Number(star.getAttribute('data-rating') || 0));
+            });
+
+            star.addEventListener('click', function () {
+                paintRating(Number(star.getAttribute('data-rating') || 0));
+            });
+        });
+
+        var ratingWrapper = document.querySelector('.detail-rating-options');
+        if (ratingWrapper) {
+            ratingWrapper.addEventListener('mouseleave', function () {
+                paintRating(getSelectedRating());
+            });
+        }
+    }
+
+    reviewJumpLinks.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (!reviewFormPanel) return;
+            reviewFormPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (reviewTextarea) {
+                window.setTimeout(function () {
+                    reviewTextarea.focus();
+                }, 320);
+            }
+        });
+    });
+
+    var thumbEl = document.getElementById('thumbnail-slider');
+    if (thumbEl) {
+        var mainSlider = new Splide('#main-slider', { type:'fade', heightRatio:.5, pagination:false, arrows:true, cover:true });
+        var thumbSlider = new Splide('#thumbnail-slider', {
+            fixedWidth:112, fixedHeight:88, isNavigation:true, gap:12, focus:'center',
+            pagination:false, cover:true, dragMinThreshold:{ mouse:4, touch:10 },
+            breakpoints:{ 600:{ fixedWidth:72, fixedHeight:56 } }
+        });
+        mainSlider.sync(thumbSlider);
+        mainSlider.mount();
+        thumbSlider.mount();
+    } else {
+        new Splide('#main-slider', { type:'fade', pagination:false, arrows:false, drag:false }).mount();
+    }
+
+    var bookedRangesEl = document.getElementById('booked-ranges-data');
+    var bookingForm = document.getElementById('bookingRequestForm');
+    var bookingFormAlert = document.getElementById('bookingFormAlert');
+    var bookingSubmitButton = document.getElementById('bookingSubmitButton');
+    var availabilityMessage = document.getElementById('bookingAvailabilityMessage');
+    var checkInInput = document.getElementById('{{ booking_form.check_in.id_for_label }}');
+    var checkOutInput = document.getElementById('{{ booking_form.check_out.id_for_label }}');
+    var bookedRanges = bookedRangesEl ? JSON.parse(bookedRangesEl.textContent) : [];
+    var bookingFields = bookingForm ? Array.prototype.slice.call(bookingForm.querySelectorAll('input, textarea, select')) : [];
+
+    function setBookingFormAlert(message) {
+        if (!bookingFormAlert) return;
+        if (!message) {
+            bookingFormAlert.className = 'alert alert-danger booking-inline-status is-hidden';
+            bookingFormAlert.textContent = '';
+            return;
+        }
+        bookingFormAlert.className = 'alert alert-danger booking-inline-status';
+        bookingFormAlert.textContent = message;
+    }
+
+    function getFieldLabel(field) {
+        var formGroup = field.closest('.form-group');
+        var label = formGroup ? formGroup.querySelector('label') : null;
+        return label ? label.textContent.replace('*', '').trim() : 'trường thông tin';
+    }
+
+    function normalizePhone(value) {
+        return String(value || '').replace(/[^\d+]/g, '').trim();
+    }
+
+    function setFieldInvalidState(field, message) {
+        if (!field) return message;
+        field.classList.toggle('is-invalid', !!message);
+        if (message) {
+            field.setAttribute('aria-invalid', 'true');
+        } else {
+            field.removeAttribute('aria-invalid');
+        }
+        return message;
+    }
+
+    function validateSingleBookingField(field) {
+        if (!field || field.type === 'hidden' || field.disabled || field.name === 'csrfmiddlewaretoken' || field.name === 'form_type') {
+            return '';
+        }
+
+        var value = String(field.value || '').trim();
+        var message = '';
+
+        if (field.name === 'customer_name') {
+            if (!value) {
+                message = 'Vui lòng nhập họ và tên để tiếp tục.';
+            } else if (value.replace(/\s+/g, ' ').length < 2) {
+                message = 'Họ và tên cần có ít nhất 2 ký tự.';
+            }
+        } else if (field.name === 'phone') {
+            var phoneValue = normalizePhone(value);
+            if (!phoneValue) {
+                message = 'Vui lòng nhập số điện thoại để admin liên hệ xác nhận.';
+            } else if (!(/^(\+84\d{9}|84\d{9}|0\d{9,10})$/.test(phoneValue))) {
+                message = 'Số điện thoại chưa đúng định dạng Việt Nam.';
+            }
+        } else if (field.name === 'email') {
+            if (!value) {
+                message = 'Vui lòng nhập email để nhận xác nhận đặt thuê.';
+            } else if (!field.checkValidity()) {
+                message = 'Email chưa đúng định dạng.';
+            }
+        } else if (field.name === 'guests') {
+            var guestValue = Number(field.value || 0);
+            if (!field.value) {
+                message = 'Vui lòng nhập số khách.';
+            } else if (guestValue < 1) {
+                message = 'Số khách phải lớn hơn 0.';
+            } else if (guestValue > 20) {
+                message = 'Nếu đoàn trên 20 khách, vui lòng liên hệ admin để được hỗ trợ.';
+            }
+        } else if (field.name === 'check_in') {
+            if (!value) {
+                message = 'Vui lòng chọn ngày nhận nhà.';
+            } else if (!field.checkValidity()) {
+                message = field.validationMessage;
+            }
+        } else if (field.name === 'check_out') {
+            if (!value) {
+                message = 'Vui lòng chọn ngày trả nhà.';
+            } else if (!field.checkValidity()) {
+                message = field.validationMessage;
+            }
+        }
+
+        return setFieldInvalidState(field, message);
+    }
+
+    function parseDate(dateStr) {
+        var parts = String(dateStr).split('-');
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function formatDateYmd(date) {
+        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    }
+
+    function addDays(dateStr, days) {
+        var date = parseDate(dateStr);
+        date.setDate(date.getDate() + days);
+        return date;
+    }
+
+    function setAvailabilityMessage(message, isError) {
+        if (!availabilityMessage) return;
+        if (!message) {
+            availabilityMessage.className = 'alert alert-danger booking-inline-status is-hidden';
+            availabilityMessage.textContent = '';
+            return;
+        }
+        availabilityMessage.className = isError ? 'alert alert-danger booking-inline-status' : 'alert alert-info booking-inline-status';
+        availabilityMessage.textContent = message;
+    }
+
+    function findConflictRange(checkInValue, checkOutValue) {
+        if (!checkInValue || !checkOutValue) return null;
+        var checkInDate = parseDate(checkInValue);
+        var checkOutDate = parseDate(checkOutValue);
+        return bookedRanges.find(function (range) {
+            var bookedStart = parseDate(range.check_in);
+            var bookedEnd = parseDate(range.check_out);
+            return checkInDate < bookedEnd && checkOutDate > bookedStart;
+        }) || null;
+    }
+
+    if (checkInInput && checkOutInput && typeof flatpickr !== 'undefined') {
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        var disabledCheckInRanges = bookedRanges.map(function (range) {
+            return { from: range.check_in, to: range.blocked_until };
+        });
+
+        var disabledCheckOutRanges = bookedRanges.map(function (range) {
+            var fromDate = addDays(range.check_in, 1);
+            var toDate = parseDate(range.blocked_until);
+            if (fromDate > toDate) return null;
+            return { from: formatDateYmd(fromDate), to: range.blocked_until };
+        }).filter(Boolean);
+
+        var initialCheckOutMinDate = checkInInput.value ? addDays(checkInInput.value, 1) : addDays(formatDateYmd(today), 1);
+
+        var checkOutPicker = flatpickr(checkOutInput, {
+            dateFormat:'Y-m-d',
+            disableMobile:true,
+            minDate:initialCheckOutMinDate,
+            disable:disabledCheckOutRanges
+        });
+
+        flatpickr(checkInInput, {
+            dateFormat:'Y-m-d',
+            disableMobile:true,
+            minDate:today,
+            disable:disabledCheckInRanges,
+            onChange:function (selectedDates, dateStr) {
+                if (dateStr) {
+                    var minCheckoutDate = new Date(selectedDates[0]);
+                    minCheckoutDate.setDate(minCheckoutDate.getDate() + 1);
+                    checkOutPicker.set('minDate', minCheckoutDate);
+                    if (checkOutPicker.selectedDates.length && checkOutPicker.selectedDates[0] <= selectedDates[0]) {
+                        checkOutPicker.clear();
+                    }
+                }
+                validateBookingDates();
+            }
+        });
+
+        function validateBookingDates() {
+            var checkInValue = checkInInput.value;
+            var checkOutValue = checkOutInput.value;
+            checkInInput.setCustomValidity('');
+            checkOutInput.setCustomValidity('');
+
+            if (!checkInValue || !checkOutValue) {
+                setAvailabilityMessage('', false);
+                return true;
+            }
+
+            var conflictRange = findConflictRange(checkInValue, checkOutValue);
+            if (conflictRange) {
+                var message = 'Căn hộ đã được thuê từ ' + conflictRange.check_in_display + ' đến ' + conflictRange.check_out_display + '. Vui lòng chọn khoảng ngày khác.';
+                checkInInput.setCustomValidity(message);
+                checkOutInput.setCustomValidity(message);
+                setAvailabilityMessage(message, true);
+                return false;
+            }
+
+            setAvailabilityMessage('Khoảng ngày bạn chọn hiện đang còn trống.', false);
+            return true;
+        }
+
+        checkOutPicker.config.onChange.push(validateBookingDates);
+        checkInInput.addEventListener('change', validateBookingDates);
+        checkOutInput.addEventListener('change', validateBookingDates);
+        validateBookingDates();
+    }
+
+    if (bookingForm) {
+        function validateBookingForm() {
+            var invalidFields = [];
+
+            if (checkInInput && checkOutInput) {
+                validateBookingDates();
+            }
+
+            bookingFields.forEach(function (field) {
+                var message = validateSingleBookingField(field);
+                if (message) {
+                    invalidFields.push({
+                        field: field,
+                        label: getFieldLabel(field),
+                    });
+                }
+            });
+
+            if (!invalidFields.length) {
+                setBookingFormAlert('');
+                return true;
+            }
+
+            var fieldNames = invalidFields.slice(0, 3).map(function (item) {
+                return item.label;
+            }).join(', ');
+            setBookingFormAlert('Bạn còn thiếu hoặc nhập sai thông tin ở các mục: ' + fieldNames + '. Vui lòng kiểm tra các ô viền đỏ bên dưới.');
+            invalidFields[0].field.focus();
+            return false;
+        }
+
+        bookingFields.forEach(function (field) {
+            if (!field || field.type === 'hidden' || field.disabled || field.name === 'csrfmiddlewaretoken' || field.name === 'form_type') {
+                return;
+            }
+
+            field.addEventListener('input', function () {
+                validateSingleBookingField(field);
+                if (!bookingForm.querySelector('.is-invalid')) {
+                    setBookingFormAlert('');
+                }
+            });
+
+            field.addEventListener('change', function () {
+                validateSingleBookingField(field);
+                if (!bookingForm.querySelector('.is-invalid')) {
+                    setBookingFormAlert('');
+                }
+            });
+        });
+
+        bookingForm.querySelectorAll('.booking-field-error').forEach(function (errorElement) {
+            var formGroup = errorElement.closest('.form-group');
+            var field = formGroup ? formGroup.querySelector('input, textarea, select') : null;
+            if (field) {
+                field.classList.add('is-invalid');
+            }
+        });
+
+        bookingForm.addEventListener('submit', function (event) {
+            if (!validateBookingForm()) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            if (bookingSubmitButton) {
+                bookingSubmitButton.disabled = true;
+                bookingSubmitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang kiểm tra thông tin...';
+            }
+        });
+    }
+});
+</script>
+
+{% if booking_form.errors %}
+<script>
+    $(document).ready(function () {
+        $('#bookingModal').modal('show');
+    });
+</script>
+{% endif %}
+{% if review_form.errors %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var reviewFormPanel = document.getElementById('review-form-panel');
+        var reviewTextarea = reviewFormPanel ? reviewFormPanel.querySelector('textarea') : null;
+        if (reviewFormPanel) {
+            reviewFormPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (reviewTextarea) {
+                window.setTimeout(function () {
+                    reviewTextarea.focus();
+                }, 320);
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

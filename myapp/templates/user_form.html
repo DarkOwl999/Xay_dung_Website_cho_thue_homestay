@@ -1,0 +1,56 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}{{ action }} tài khoản{% endblock %}
+{% block admin_section %}Tài khoản{% endblock %}
+{% block admin_page_title %}{{ action }} tài khoản{% endblock %}
+{% block admin_page_description %}Trang riêng để tạo tài khoản mới hoặc cập nhật phân quyền admin và trạng thái hoạt động của người dùng.{% endblock %}
+
+{% block admin_page_actions %}
+<a href="{% url 'user_admin' %}" class="admin-ghost-btn">
+    <i class="fas fa-arrow-left"></i> Về danh sách tài khoản
+</a>
+{% endblock %}
+
+{% block admin_body %}
+<section class="admin-panel admin-form-card mt-4">
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="admin-form-grid">
+            {% for field in form %}
+                <div class="admin-form-field {% if field.field.widget.input_type == 'checkbox' %}admin-form-field--full{% endif %}">
+                    {% if field.field.widget.input_type == 'checkbox' %}
+                        <div class="admin-toggle-field">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}" class="mb-0">{{ field.label }}</label>
+                        </div>
+                    {% else %}
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <small class="form-error">{{ field.errors.0 }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="admin-form-actions">
+            <button type="submit" class="admin-primary-btn">
+                <i class="fas fa-save"></i> Lưu dữ liệu
+            </button>
+            <a href="{% url 'user_admin' %}" class="admin-secondary-btn">
+                <i class="fas fa-times"></i> Hủy
+            </a>
+        </div>
+    </form>
+</section>
+{% endblock %}

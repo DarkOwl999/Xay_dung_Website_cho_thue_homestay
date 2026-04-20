@@ -1,0 +1,89 @@
+.map-filter-box-hidden,
+.map-route-panel-hidden,
+.map-loading-box-hidden,
+.map-error-box-hidden {
+    display: none;
+}
+
+.map-routes-list {
+    flex: 1;
+}
+
+.map-hotel-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    background-color: #4f7cff;
+    box-shadow: 0 10px 20px rgba(12, 30, 61, 0.18);
+    color: #ffffff;
+    font-size: 18px;
+}
+
+body:not(.admin-page) .map-overlay-card {
+    display: none;
+}
+
+.map-nearby-center-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 14px 0 16px;
+    padding: 14px 16px;
+    border: 1px dashed rgba(23, 48, 85, 0.16);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.map-nearby-center-label {
+    display: block;
+    margin-top: 4px;
+    color: #173055;
+    font-size: 0.98rem;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+.map-panel-note--compact {
+    margin: 6px 0 0;
+}
+
+.map-chip-btn--danger {
+    color: #a34b18;
+}
+
+.map-chip-btn--danger:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.map-search-pin-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: linear-gradient(135deg, #f5d46b, #d4af37);
+    border: 3px solid #ffffff;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.22);
+    color: #173055;
+}
+
+.map-search-pin-icon i {
+    transform: rotate(45deg);
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .map-nearby-center-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

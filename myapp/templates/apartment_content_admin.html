@@ -1,0 +1,195 @@
+﻿{% extends 'admin_base.html' %}
+
+{% block title %}Nội dung căn hộ{% endblock %}
+{% block admin_section %}Căn hộ{% endblock %}
+{% block admin_page_title %}Nội dung hiển thị cho căn hộ{% endblock %}
+{% block admin_page_description %}Quản lý riêng thư viện ảnh và dịch vụ cho căn hộ {{ apartment.name }} để trang chi tiết hiển thị đầy đủ và gọn gàng.{% endblock %}
+
+{% block admin_page_actions %}
+<a href="{% url 'apartment_admin' %}" class="admin-ghost-btn">
+    <i class="fas fa-arrow-left"></i> Về danh sách căn hộ
+</a>
+{% endblock %}
+
+{% block admin_body %}
+<div class="row mt-4">
+    <div class="col-xl-6 mb-4">
+        <section class="admin-panel h-100">
+            <div class="admin-panel-head">
+                <div>
+                    <h3>Thư viện ảnh</h3>
+                    <p>Thêm và sắp xếp các ảnh hiển thị cho {{ apartment.name }}.</p>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" class="mb-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_image">
+
+                <div class="admin-form-grid">
+                    {% for field in image_form %}
+                    <div class="admin-form-field {% if field.name == 'description' or field.name == 'images' %}admin-form-field--full{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <small class="form-error">{{ field.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="admin-note-card mt-3">
+                    Bạn có thể chọn nhiều ảnh trong một lần tải lên. Nếu nhập tiêu đề chung, hệ thống sẽ tự đánh số cho từng ảnh khi thêm vào thư viện.
+                </div>
+
+                <div class="admin-form-actions">
+                    <button type="submit" class="admin-primary-btn">
+                        <i class="fas fa-images"></i> Thêm ảnh vào thư viện
+                    </button>
+                </div>
+            </form>
+
+            <div class="admin-collection-grid">
+                {% for img in images %}
+                <div class="admin-collection-card">
+                    <img src="{{ img.image.url }}" alt="{{ img.title|default:'Ảnh căn hộ' }}">
+                    <div class="admin-collection-body">
+                        <strong>{{ img.title|default:'Ảnh căn hộ' }}</strong>
+                        <p>{{ img.description|default:'Không có mô tả' }}</p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete_image">
+                            <input type="hidden" name="image_id" value="{{ img.id }}">
+                            <button type="submit" class="admin-danger-btn admin-btn-sm" onclick="return confirm('Xóa ảnh này?');">
+                                <i class="fas fa-trash"></i> Xóa ảnh
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="admin-empty">Chưa có ảnh thư viện nào.</div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <div class="col-xl-6 mb-4">
+        <section class="admin-panel h-100">
+            <div class="admin-panel-head">
+                <div>
+                    <h3>Dịch vụ và tiện ích</h3>
+                    <p>Thêm danh sách tiện ích để hiển thị rõ hơn ở trang chi tiết.</p>
+                </div>
+            </div>
+
+            <form method="POST" class="mb-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_service">
+
+                <div class="admin-form-grid">
+                    <div class="admin-form-field">
+                        <label for="{{ service_form.name.id_for_label }}">{{ service_form.name.label }}</label>
+                        {{ service_form.name }}
+                        {% if service_form.name.errors %}
+                            <small class="form-error">{{ service_form.name.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="admin-form-field">
+                        <label for="{{ service_form.icon.id_for_label }}">{{ service_form.icon.label }}</label>
+                        {{ service_form.icon }}
+                        {% if service_form.icon.help_text %}
+                            <small class="form-text text-muted">{{ service_form.icon.help_text }}</small>
+                        {% endif %}
+                        {% if service_form.icon.errors %}
+                            <small class="form-error">{{ service_form.icon.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="admin-form-field admin-form-field--full">
+                        <label>Chọn nhanh icon</label>
+                        <div class="admin-icon-picker" id="serviceIconPicker">
+                            {% for icon_value, icon_label in service_icon_choices %}
+                            <button
+                                type="button"
+                                class="admin-icon-choice{% if service_form.icon.value == icon_value or service_form.initial.icon == icon_value %} is-active{% endif %}"
+                                data-icon-value="{{ icon_value }}"
+                                title="{{ icon_label }}"
+                            >
+                                <i class="fas {{ icon_value }}"></i>
+                                <span>{{ icon_label }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="admin-form-field admin-form-field--full">
+                        <label for="{{ service_form.description.id_for_label }}">{{ service_form.description.label }}</label>
+                        {{ service_form.description }}
+                        {% if service_form.description.errors %}
+                            <small class="form-error">{{ service_form.description.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="admin-form-actions">
+                    <button type="submit" class="admin-primary-btn">
+                        <i class="fas fa-concierge-bell"></i> Thêm dịch vụ
+                    </button>
+                </div>
+            </form>
+
+            <div class="admin-service-list">
+                {% for item in services %}
+                <div class="admin-service-card">
+                    <div class="admin-service-copy">
+                        <strong><i class="fas {{ item.icon|default:'fa-check-circle' }}"></i> {{ item.name }}</strong>
+                        <p>{{ item.description|default:'Không có mô tả.' }}</p>
+                    </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_service">
+                        <input type="hidden" name="service_id" value="{{ item.id }}">
+                        <button type="submit" class="admin-danger-btn admin-btn-sm" onclick="return confirm('Xóa dịch vụ này?');">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+                    </form>
+                </div>
+                {% empty %}
+                <div class="admin-empty">Chưa có dịch vụ nào.</div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const iconSelect = document.getElementById('{{ service_form.icon.id_for_label }}');
+        const iconButtons = document.querySelectorAll('#serviceIconPicker .admin-icon-choice');
+
+        if (!iconSelect || !iconButtons.length) {
+            return;
+        }
+
+        function paintSelectedIcon(value) {
+            iconButtons.forEach((button) => {
+                button.classList.toggle('is-active', button.dataset.iconValue === value);
+            });
+        }
+
+        iconButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                iconSelect.value = button.dataset.iconValue;
+                paintSelectedIcon(button.dataset.iconValue);
+            });
+        });
+
+        iconSelect.addEventListener('change', () => paintSelectedIcon(iconSelect.value));
+        paintSelectedIcon(iconSelect.value || 'fa-check-circle');
+    })();
+</script>
+{% endblock %}

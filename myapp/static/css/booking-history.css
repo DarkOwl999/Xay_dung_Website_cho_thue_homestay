@@ -1,0 +1,240 @@
+.booking-history-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.booking-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.booking-history-header h2 {
+    margin: 0;
+    color: #173055;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.08;
+}
+
+.booking-history-header p {
+    margin: 10px 0 0;
+    max-width: 780px;
+    color: #64748b;
+    font-size: 1.1rem;
+    line-height: 1.65;
+}
+
+.booking-history-table-wrap {
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+}
+
+.booking-history-table {
+    width: 100%;
+    min-width: 1120px;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+}
+
+.booking-history-table thead th {
+    padding: 18px 16px;
+    background: #313842;
+    color: #ffffff;
+    font-size: 0.92rem;
+    font-weight: 700;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.booking-history-table thead th:last-child {
+    border-right: 0;
+}
+
+.booking-history-table tbody td {
+    padding: 20px 16px;
+    vertical-align: top;
+    border-right: 1px solid #e8eef5;
+    border-bottom: 1px solid #e8eef5;
+    color: #24364e;
+    background: #ffffff;
+}
+
+.booking-history-table tbody tr:hover td {
+    background: #fbfdff;
+}
+
+.booking-history-table tbody td:last-child {
+    border-right: 0;
+}
+
+.booking-history-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.history-order-code {
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #173055;
+    margin-bottom: 10px;
+}
+
+.history-order-meta,
+.history-subtext,
+.history-payment-line {
+    display: block;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: #6b7a90;
+}
+
+.history-order-meta {
+    word-break: break-word;
+}
+
+.history-apartment-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1.42;
+    color: #173055;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.history-soft-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #31578d;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.history-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.history-maintext {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #173055;
+    line-height: 1.45;
+    margin-bottom: 6px;
+}
+
+.history-date {
+    font-size: 1.06rem;
+    font-weight: 700;
+    color: #173055;
+    white-space: nowrap;
+    margin-bottom: 6px;
+}
+
+.history-price {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #173055;
+    line-height: 1.1;
+    margin-bottom: 10px;
+}
+
+.history-price-note {
+    font-size: 0.98rem;
+    font-weight: 500;
+    color: #6b7a90;
+}
+
+.history-payment-title {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #173055;
+    margin-bottom: 8px;
+}
+
+.history-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    margin-top: 12px;
+}
+
+.history-status-pill.pending {
+    background: #fde68a;
+    color: #7a4b00;
+}
+
+.history-status-pill.paid {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.history-status-pill.failed {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.history-status-pill.refunded {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.history-actions {
+    min-width: 170px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.history-actions .btn {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    border-radius: 10px;
+}
+
+.history-empty {
+    text-align: center;
+    padding: 64px 24px !important;
+}
+
+.history-empty-copy {
+    color: #64748b;
+    font-size: 1.05rem;
+    margin-bottom: 18px;
+}
+
+@media (max-width: 991.98px) {
+    .booking-history-header h2 {
+        font-size: 2.2rem;
+    }
+
+    .booking-history-header p {
+        font-size: 1rem;
+    }
+}

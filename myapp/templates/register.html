@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Đăng ký tài khoản{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth-otp.css' %}?v=20260415-register-otp" />
+{% endblock %}
+
+{% block content %}
+<section class="auth-otp-shell">
+    <div class="auth-otp-copy">
+        <img src="/media/apartments/logoweb.png" alt="CanHo24h" class="auth-otp-logo">
+        <span class="auth-otp-kicker">Đăng ký an toàn</span>
+        <h1>Tạo tài khoản và xác thực email bằng OTP</h1>
+        <p>
+            Sau khi gửi thông tin, hệ thống sẽ tạo mã OTP và gửi đến email bạn đăng ký.
+            Tài khoản chỉ được kích hoạt khi mã xác thực chính xác.
+        </p>
+        <div class="auth-otp-steps">
+            <div class="auth-otp-step is-active">
+                <span>1</span>
+                <div>
+                    <strong>Nhập thông tin</strong>
+                    <small>Tên đăng nhập, email và mật khẩu.</small>
+                </div>
+            </div>
+            <div class="auth-otp-step">
+                <span>2</span>
+                <div>
+                    <strong>Kiểm tra OTP</strong>
+                    <small>Mã được gửi qua SMTP Mailtrap đang cấu hình.</small>
+                </div>
+            </div>
+            <div class="auth-otp-step">
+                <span>3</span>
+                <div>
+                    <strong>Kích hoạt tài khoản</strong>
+                    <small>Đăng nhập tự động sau khi xác thực.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-otp-panel">
+        <div class="auth-otp-panel-head">
+            <span class="auth-otp-panel-icon"><i class="fas fa-user-plus"></i></span>
+            <div>
+                <h2>Tạo tài khoản mới</h2>
+                <p>Điền đúng email để nhận mã OTP xác thực.</p>
+            </div>
+        </div>
+
+        <form method="POST" novalidate class="auth-otp-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group auth-otp-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span>*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <small class="text-danger d-block">{{ field.errors.0 }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="auth-otp-primary-btn">
+                <i class="fas fa-paper-plane"></i>
+                Gửi OTP xác thực email
+            </button>
+        </form>
+
+        <div class="auth-otp-footer">
+            Đã có tài khoản?
+            <a href="{% url 'login' %}">Đăng nhập ngay</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

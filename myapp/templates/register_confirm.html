@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Xác thực email đăng ký{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth-otp.css' %}?v=20260415-register-otp" />
+{% endblock %}
+
+{% block content %}
+<section class="auth-otp-shell auth-otp-shell--confirm">
+    <div class="auth-otp-copy">
+        <img src="/media/apartments/logoweb.png" alt="CanHo24h" class="auth-otp-logo">
+        <span class="auth-otp-kicker">Xác thực email</span>
+        <h1>Nhập mã OTP để kích hoạt tài khoản</h1>
+        <p>
+            Mã xác thực đã được gửi đến email đăng ký. Khi chạy demo bằng Mailtrap,
+            hãy mở inbox Mailtrap đang cấu hình để lấy mã OTP mới nhất.
+        </p>
+        <div class="auth-otp-email-card">
+            <i class="fas fa-envelope-open-text"></i>
+            <div>
+                <span>Email nhận OTP</span>
+                <strong>{{ otp_email }}</strong>
+                <small>Mã có hiệu lực trong {{ expire_minutes }} phút.</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-otp-panel">
+        <div class="auth-otp-panel-head">
+            <span class="auth-otp-panel-icon"><i class="fas fa-shield-alt"></i></span>
+            <div>
+                <h2>Xác nhận mã OTP</h2>
+                <p>Tài khoản <strong>{{ username }}</strong> sẽ được kích hoạt sau bước này.</p>
+            </div>
+        </div>
+
+        <form method="POST" novalidate class="auth-otp-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="verify">
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group auth-otp-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <small class="text-danger d-block">{{ field.errors.0 }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="auth-otp-primary-btn">
+                <i class="fas fa-check-circle"></i>
+                Xác thực và kích hoạt
+            </button>
+        </form>
+
+        <form method="POST" class="auth-otp-resend-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="resend">
+            <button type="submit" class="auth-otp-secondary-btn">
+                <i class="fas fa-redo-alt"></i>
+                Gửi lại mã OTP
+            </button>
+        </form>
+
+        <div class="auth-otp-footer">
+            Nhập sai quá nhiều lần?
+            <a href="{% url 'register' %}">Đăng ký lại</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

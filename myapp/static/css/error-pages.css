@@ -1,0 +1,61 @@
+.error-page-section {
+    min-height: calc(100vh - 85px);
+    margin-top: 85px;
+}
+
+.error-page-section--404 {
+    background-color: var(--bg-light);
+}
+
+.error-page-section--403 {
+    background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+}
+
+.error-page-brand {
+    letter-spacing: 0.2em;
+    color: #d4af37;
+}
+
+.error-page-code {
+    color: var(--primary-color);
+    letter-spacing: 2px;
+    text-shadow: 2px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.error-page-code--403 {
+    color: #1f3b73;
+    text-shadow: none;
+    letter-spacing: normal;
+}
+
+.error-page-copy {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.error-page-copy--403 {
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.error-page-home-btn {
+    font-size: 1.05rem;
+}
+
+.error-page-card {
+    border-radius: 28px;
+    overflow: hidden;
+}
+
+.error-page-icon-shell {
+    width: 112px;
+    height: 112px;
+    background: rgba(212, 175, 55, 0.14);
+    color: #d4af37;
+}
+
+.error-page-lottie {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
